@@ -1,0 +1,378 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  MITRA
+  SUPERADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VehicleType {
+  Motor
+  Mobil
+}
+
+enum TariffCategory {
+  BBM
+  PLN
+  SPKLU_REF
+}
+
+enum FacilityType {
+  SPKLU
+  SPBKLU
+  Showroom
+}
+
+model City {
+  id          String     @id @default(uuid())
+  slug        String     @unique
+  name        String     @unique
+  centerLat   Float      @map("center_lat")
+  centerLng   Float      @map("center_lng")
+  defaultZoom Int        @default(12) @map("default_zoom")
+  isActive    Boolean    @default(true) @map("is_active")
+  users       User[]
+  partners    Partner[]
+  facilities  Facility[]
+
+  @@map("cities")
+}
+
+model User {
+  id                String                 @id @default(uuid())
+  fullName          String                 @map("full_name")
+  email             String                 @unique
+  passwordHash      String?                @map("password_hash")
+  googleSub         String?                @unique @map("google_sub")
+  role              UserRole               @default(USER)
+  cityId            String?                @map("city_id")
+  homePowerVa       Int                    @default(1300) @map("home_power_va")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+  city              City?                  @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  notificationPref  UserNotificationPref?
+  ownedPartner      Partner?               @relation("PartnerOwner")
+  verifiedPartners  Partner[]              @relation("PartnerVerifier")
+  updatedTariffs    EnergyTariff[]
+  tariffHistories   EnergyTariffHistory[]
+  updatedIncentives EvIncentive[]
+  consultations     ConsultationSession[]
+  simulations       Simulation[]
+  partnerLeads      PartnerLead[]
+  funnelEvents      FunnelEvent[]
+
+  @@map("users")
+}
+
+model UserNotificationPref {
+  userId                String   @id @map("user_id")
+  tariffIncentiveAlert  Boolean  @default(true) @map("tariff_incentive_alert")
+  monthlyReportReminder Boolean  @default(false) @map("monthly_report_reminder")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_prefs")
+}
+
+model Partner {
+  id                 String                    @id @default(uuid())
+  ownerUserId        String                    @unique @map("owner_user_id")
+  cityId             String?                   @map("city_id")
+  companyName        String                    @map("company_name")
+  partnerCategory    String                    @map("partner_category")
+  picEmail           String                    @map("pic_email")
+  verificationStatus VerificationStatus        @default(PENDING) @map("verification_status")
+  verifiedById       String?                   @map("verified_by_id")
+  rejectionNote      String?                   @map("rejection_note")
+  submittedAt        DateTime                  @default(now()) @map("submitted_at")
+  verifiedAt         DateTime?                 @map("verified_at")
+  owner              User                      @relation("PartnerOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  city               City?                     @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  verifiedBy         User?                     @relation("PartnerVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  documents          PartnerDocument[]
+  evModels           EvModel[]
+  facilities         Facility[]
+  batteryPrices      BatteryReplacementPrice[]
+  leads              PartnerLead[]
+
+  @@map("partners")
+}
+
+model PartnerDocument {
+  id         String   @id @default(uuid())
+  partnerId  String   @map("partner_id")
+  docType    String   @map("doc_type")
+  docLabel   String   @map("doc_label")
+  fileUrl    String?  @map("file_url")
+  isComplete Boolean  @default(false) @map("is_complete")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+  partner    Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, docType])
+  @@map("partner_documents")
+}
+
+model EvModel {
+  id                    String                    @id @default(uuid())
+  partnerId             String?                   @map("partner_id")
+  slug                  String                    @unique
+  brand                 String
+  modelName             String                    @map("model_name")
+  vehicleType           VehicleType               @map("vehicle_type")
+  batteryKwh            Float                     @map("battery_kwh")
+  // ponytail: IEEE-754 Float holds exact integers up to 9e15 IDR without BigInt JSON crash
+  otrPriceIdr           Float                     @map("otr_price_idr")
+  wltpRangeKm           Int                       @map("wltp_range_km")
+  consumptionKwh100km   Float                     @map("consumption_kwh_100km")
+  acChargerKw           Float                     @map("ac_charger_kw")
+  dcChargerKw           Float                     @default(0) @map("dc_charger_kw")
+  serviceCostPerKmIdr   Float                     @default(14) @map("service_cost_per_km_idr")
+  annualPkbTaxIdr       Float                     @default(0) @map("annual_pkb_tax_idr")
+  warrantyLabel         String                    @map("warranty_label")
+  promoLabel            String?                   @map("promo_label")
+  comparableIceName     String                    @map("comparable_ice_name")
+  comparableIcePriceIdr Float                     @map("comparable_ice_price_idr")
+  imageUrl              String?                   @map("image_url")
+  isActive              Boolean                   @default(true) @map("is_active")
+  deletedAt             DateTime?                 @map("deleted_at")
+  createdAt             DateTime                  @default(now()) @map("created_at")
+  updatedAt             DateTime                  @updatedAt @map("updated_at")
+  partner               Partner?                  @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  batteryPrices         BatteryReplacementPrice[]
+  recommendedSessions   ConsultationSession[]
+  simulations           Simulation[]
+  leads                 PartnerLead[]
+
+  @@index([vehicleType, isActive, deletedAt])
+  @@map("ev_models")
+}
+
+model BatteryReplacementPrice {
+  id                  String   @id @default(uuid())
+  evModelId           String   @map("ev_model_id")
+  partnerId           String?  @map("partner_id")
+  replacementPriceIdr Float    @map("replacement_price_idr")
+  warrantyNote        String   @map("warranty_note")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  evModel             EvModel  @relation(fields: [evModelId], references: [id], onDelete: Cascade)
+  partner             Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+
+  @@unique([evModelId])
+  @@map("battery_replacement_prices")
+}
+
+model IceVehiclePreset {
+  id                      String       @id @default(uuid())
+  modelName               String       @unique @map("model_name")
+  vehicleType             VehicleType  @map("vehicle_type")
+  defaultKmPerLiter       Float        @map("default_km_per_liter")
+  defaultFuelCode         String       @map("default_fuel_code")
+  estimatedOtrPriceIdr    Float        @map("estimated_otr_price_idr")
+  estimatedResalePriceIdr Float        @map("estimated_resale_price_idr")
+  serviceCostPerKmIdr     Float        @map("service_cost_per_km_idr")
+  annualStnkTaxIdr        Float        @map("annual_stnk_tax_idr")
+  isActive                Boolean      @default(true) @map("is_active")
+  simulations             Simulation[]
+
+  @@map("ice_vehicle_presets")
+}
+
+model EnergyTariff {
+  id                   String                @id @default(uuid())
+  category             TariffCategory
+  code                 String                @unique
+  displayName          String                @map("display_name")
+  subsidyType          String                @map("subsidy_type")
+  powerVaMin           Int?                  @map("power_va_min")
+  powerVaMax           Int?                  @map("power_va_max")
+  pricePerUnitIdr      Float                 @map("price_per_unit_idr")
+  unitLabel            String                @map("unit_label")
+  upgradeFeeIdr        Float?                @map("upgrade_fee_idr")
+  emissionKgCo2PerUnit Float                 @default(0) @map("emission_kg_co2_per_unit")
+  isActive             Boolean               @default(true) @map("is_active")
+  updatedById          String?               @map("updated_by_id")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  updatedBy            User?                 @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  histories            EnergyTariffHistory[]
+  fuelSimulations      Simulation[]          @relation("FuelTariffRelation")
+  plnSimulations       Simulation[]          @relation("PlnTariffRelation")
+
+  @@map("energy_tariffs")
+}
+
+model EnergyTariffHistory {
+  id             String       @id @default(uuid())
+  energyTariffId String       @map("energy_tariff_id")
+  oldPriceIdr    Float        @map("old_price_idr")
+  newPriceIdr    Float        @map("new_price_idr")
+  changedById    String?      @map("changed_by_id")
+  effectiveFrom  DateTime     @default(now()) @map("effective_from")
+  energyTariff   EnergyTariff @relation(fields: [energyTariffId], references: [id], onDelete: Restrict)
+  changedBy      User?        @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([energyTariffId, effectiveFrom])
+  @@map("energy_tariff_histories")
+}
+
+model EvIncentive {
+  id                    String   @id @default(uuid())
+  code                  String   @unique
+  policyName            String   @map("policy_name")
+  applicableVehicleType String   @map("applicable_vehicle_type")
+  calculationType       String   @map("calculation_type")
+  benefitValue          Float    @map("benefit_value")
+  benefitDisplayText    String   @map("benefit_display_text")
+  legalBasis            String   @map("legal_basis")
+  isActive              Boolean  @default(true) @map("is_active")
+  updatedById           String?  @map("updated_by_id")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  updatedBy             User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("ev_incentives")
+}
+
+model Facility {
+  id              String        @id @default(uuid())
+  partnerId       String?       @map("partner_id")
+  cityId          String        @map("city_id")
+  facilityName    String        @map("facility_name")
+  facilityType    FacilityType  @map("facility_type")
+  fullAddress     String        @map("full_address")
+  latitude        Float
+  longitude       Float
+  powerOrSlotSpec String        @map("power_or_slot_spec")
+  operatingHours  String        @map("operating_hours")
+  serviceTariffIdr Float        @default(0) @map("service_tariff_idr")
+  tariffUnitLabel String        @map("tariff_unit_label")
+  isActive        Boolean       @default(true) @map("is_active")
+  deletedAt       DateTime?     @map("deleted_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  partner         Partner?      @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  city            City          @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  leads           PartnerLead[]
+
+  @@index([cityId, facilityType, isActive, deletedAt])
+  @@map("facilities")
+}
+
+model RoutePreset {
+  id         String  @id @default(uuid())
+  routeLabel String  @unique @map("route_label")
+  distanceKm Int     @map("distance_km")
+  sortOrder  Int     @default(0) @map("sort_order")
+  isActive   Boolean @default(true) @map("is_active")
+
+  @@map("route_presets")
+}
+
+model SystemParameter {
+  key         String   @id
+  valueType   String   @map("value_type")
+  paramValue  String   @map("param_value")
+  description String
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_parameters")
+}
+
+model ConsultationSession {
+  id                String      @id @default(uuid())
+  userId            String?     @map("user_id")
+  guestSessionToken String?     @map("guest_session_token")
+  pathway           String
+  answersPayload    Json        @map("answers_payload")
+  recommendedEvId   String?     @map("recommended_ev_id")
+  startedAt         DateTime    @default(now()) @map("started_at")
+  completedAt       DateTime?   @map("completed_at")
+  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recommendedEv     EvModel?    @relation(fields: [recommendedEvId], references: [id], onDelete: SetNull)
+  simulation        Simulation?
+
+  @@index([guestSessionToken])
+  @@index([startedAt])
+  @@map("consultation_sessions")
+}
+
+model Simulation {
+  id                        String               @id @default(uuid())
+  userId                    String?              @map("user_id")
+  consultationSessionId     String?              @unique @map("consultation_session_id")
+  guestSessionToken         String?              @map("guest_session_token")
+  shareToken                String               @unique @map("share_token")
+  pathway                   String
+  vehicleType               VehicleType          @map("vehicle_type")
+  icePresetId               String?              @map("ice_preset_id")
+  customIceName             String               @map("custom_ice_name")
+  iceKmPerLiter             Float                @map("ice_km_per_liter")
+  fuelTariffId              String               @map("fuel_tariff_id")
+  plnTariffId               String               @map("pln_tariff_id")
+  dailyDistanceKm           Int                  @map("daily_distance_km")
+  budgetIdr                 Float                @map("budget_idr")
+  evModelId                 String               @map("ev_model_id")
+  homePowerVa               Int                  @map("home_power_va")
+  homeChargerKw             Float                @map("home_charger_kw")
+  baseLoadKw                Float                @map("base_load_kw")
+  nightChargingEnabled      Boolean              @default(false) @map("night_charging_enabled")
+  homeChargingSharePct      Int                  @default(85) @map("home_charging_share_pct")
+  solarRooftopEnabled       Boolean              @default(false) @map("solar_rooftop_enabled")
+  financeAndBatteryParams   Json                 @map("finance_and_battery_params")
+  immutableTariffEvSnapshot Json                 @map("immutable_tariff_ev_snapshot")
+  calculatedSummarySnapshot Json                 @map("calculated_summary_snapshot")
+  isSavedToHistory          Boolean              @default(true) @map("is_saved_to_history")
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  user                      User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  consultationSession       ConsultationSession? @relation(fields: [consultationSessionId], references: [id], onDelete: SetNull)
+  icePreset                 IceVehiclePreset?    @relation(fields: [icePresetId], references: [id], onDelete: SetNull)
+  fuelTariff                EnergyTariff         @relation("FuelTariffRelation", fields: [fuelTariffId], references: [id], onDelete: Restrict)
+  plnTariff                 EnergyTariff         @relation("PlnTariffRelation", fields: [plnTariffId], references: [id], onDelete: Restrict)
+  evModel                   EvModel              @relation(fields: [evModelId], references: [id], onDelete: Restrict)
+
+  @@index([userId, isSavedToHistory, createdAt])
+  @@index([guestSessionToken])
+  @@map("simulations")
+}
+
+model PartnerLead {
+  id         String    @id @default(uuid())
+  partnerId  String?   @map("partner_id")
+  evModelId  String?   @map("ev_model_id")
+  facilityId String?   @map("facility_id")
+  userId     String?   @map("user_id")
+  eventType  String    @map("event_type")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  partner    Partner?  @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  evModel    EvModel?  @relation(fields: [evModelId], references: [id], onDelete: SetNull)
+  facility   Facility? @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([partnerId, createdAt])
+  @@map("partner_leads")
+}
+
+model FunnelEvent {
+  id           String   @id @default(uuid())
+  sessionToken String   @map("session_token")
+  userId       String?  @map("user_id")
+  stageName    String   @map("stage_name")
+  pathway      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([stageName, createdAt])
+  @@map("funnel_events")
+}
+
