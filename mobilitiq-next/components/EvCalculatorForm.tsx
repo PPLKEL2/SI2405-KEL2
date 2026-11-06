@@ -1,395 +1,539 @@
 "use client";
 
-import React, { useState, useId } from "react";
+import React, { useState } from "react";
+import { calculateEvEnergy } from "@/lib/calculations/ev";
 import {
-  calculateEvEnergy,
-  type EvCalculationInput,
-} from "@/lib/calculations/ev";
-import {
-  PLN_TARIFF_REFERENCES,
   EV_SAMPLE_PRESETS,
+  PLN_TARIFF_REFERENCES,
+  type EvPreset,
 } from "@/lib/data/reference-data";
 import { formatIdr, formatNumber } from "@/lib/format";
-import { parseStrictNumber } from "@/lib/parser";
-import { InputField } from "./InputField";
-import { ResultCard } from "./ResultCard";
 
 export function EvCalculatorForm() {
-  const selectId = useId();
-  // Form raw string states (untuk menangani pengetikan pengguna secara natural)
-  const [consumptionInput, setConsumptionInput] = useState<string>("15");
-  const [dailyDistanceInput, setDailyDistanceInput] = useState<string>("30");
-  const [homeChargingPctInput, setHomeChargingPctInput] = useState<string>("80");
-  const [homeTariffInput, setHomeTariffInput] = useState<string>("1444.70");
-  const [spkluTariffInput, setSpkluTariffInput] = useState<string>("2466");
-  const [selectedTariffId, setSelectedTariffId] = useState<string>("pln-1300-2200");
+  // Preset model EV aktif (default: Polytron Fox-R seperti di Figma Screen 09)
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("fox-r");
+  const [customConsumption, setCustomConsumption] = useState<string>("15");
 
-  // Parser 2-tahap
-  const parsedConsumption = parseStrictNumber(consumptionInput);
-  const parsedDistance = parseStrictNumber(dailyDistanceInput);
-  const parsedHomePct = parseStrictNumber(homeChargingPctInput);
-  const parsedHomeTariff = parseStrictNumber(homeTariffInput);
-  const parsedSpkluTariff = parseStrictNumber(spkluTariffInput);
+  // Kontrol Slider reaktif persis Figma (nilai awal jarak 60 km/hari)
+  const [dailyDistanceKm, setDailyDistanceKm] = useState<number>(60);
+  const [homeChargingPct, setHomeChargingPct] = useState<number>(85);
 
-  // Kumpulkan input valid jika semua parsing sukses
-  const isInputSyntacticallyValid =
-    parsedConsumption.valid &&
-    parsedDistance.valid &&
-    parsedHomePct.valid &&
-    parsedHomeTariff.valid &&
-    parsedSpkluTariff.valid;
+  // ponytail: hitung posisi fill track (--p) deklaratif dari state dengan offset thumb 22px
+  const distRatio = Math.min(1, Math.max(0, (dailyDistanceKm - 5) / (150 - 5)));
+  const distFillStyle = {
+    "--p": `calc(${distRatio * 100}% + ${(0.5 - distRatio) * 22}px)`,
+  } as React.CSSProperties;
 
-  let calculationResult = null;
-  let validationErrors: Record<string, string> = {};
+  const homeRatio = Math.min(1, Math.max(0, homeChargingPct / 100));
+  const homeFillStyle = {
+    "--p": `calc(${homeRatio * 100}% + ${(0.5 - homeRatio) * 22}px)`,
+  } as React.CSSProperties;
 
-  if (isInputSyntacticallyValid) {
-    const calculationInput: EvCalculationInput = {
-      consumptionKwh100km: parsedConsumption.value!,
-      dailyDistanceKm: parsedDistance.value!,
-      homeChargingPercentage: parsedHomePct.value!,
-      homeTariffPerKwh: parsedHomeTariff.value!,
-      spkluTariffPerKwh: parsedSpkluTariff.value!,
-    };
+  // Parameter tarif listrik
+  const [homeTariff, setHomeTariff] = useState<number>(1444.7);
+  const [spkluTariff, setSpkluTariff] = useState<number>(2466);
+  const [showAdvancedTariff, setShowAdvancedTariff] = useState<boolean>(false);
 
-    const res = calculateEvEnergy(calculationInput);
-    if (res.ok) {
-      calculationResult = res.data;
-    } else {
-      validationErrors = (res.errors as Record<string, string>) || {};
-    }
-  }
+  // Ambil data preset aktif
+  const currentPreset: EvPreset | undefined = EV_SAMPLE_PRESETS.find(
+    (p) => p.id === selectedPresetId
+  );
 
-  // Handler pergantian preset EV
-  const handleSelectPreset = (presetId: string) => {
-    const preset = EV_SAMPLE_PRESETS.find((p) => p.id === presetId);
-    if (preset) {
-      setConsumptionInput(preset.consumptionKwh100km.toString());
-    }
-  };
+  const effectiveConsumption =
+    selectedPresetId === "custom"
+      ? parseFloat(customConsumption) || 15
+      : currentPreset
+      ? currentPreset.consumptionKwh100km
+      : 3.2;
 
-  // Handler pergantian golongan tarif PLN
-  const handleSelectPlnTariff = (tariffId: string) => {
-    setSelectedTariffId(tariffId);
-    const ref = PLN_TARIFF_REFERENCES.find((t) => t.id === tariffId);
-    if (ref) {
-      setHomeTariffInput(ref.tariffPerKwh.toString());
-    }
-  };
+  // Jalankan fungsi perhitungan resmi KEL2-67
+  const calcResult = calculateEvEnergy({
+    consumptionKwh100km: effectiveConsumption,
+    dailyDistanceKm: dailyDistanceKm,
+    homeChargingPercentage: homeChargingPct,
+    homeTariffPerKwh: homeTariff,
+    spkluTariffPerKwh: spkluTariff,
+  });
+
+  const calculationData = calcResult.ok ? calcResult.data : null;
+
+  // Benchmark kendaraan BBM pembanding (persis model Figma)
+  const isMotor = currentPreset
+    ? currentPreset.vehicleType === "Motor"
+    : effectiveConsumption < 8;
+
+  const iceName = currentPreset?.iceName || (isMotor ? "Honda Vario 125" : "Toyota Avanza");
+  const iceKmL = currentPreset?.iceKmL || (isMotor ? 48 : 13);
+  const bbmPricePerLiter = 10000; // Pertalite acuan resmi per liter
+
+  const monthlyKm = dailyDistanceKm * 30;
+  const bbmMonthlyCost = Math.round((monthlyKm / iceKmL) * bbmPricePerLiter);
+  const evMonthlyCost = calculationData ? calculationData.totalCostMonthly : 0;
+  const savingsMonthly = Math.max(0, bbmMonthlyCost - evMonthlyCost);
+  const savingsPercent =
+    bbmMonthlyCost > 0 ? Math.round((savingsMonthly / bbmMonthlyCost) * 100) : 0;
+
+  // Bar chart normalization
+  const maxBarValue = Math.max(bbmMonthlyCost, evMonthlyCost, 1);
+  const bbmBarPercent = (bbmMonthlyCost / maxBarValue) * 100;
+  const evBarPercent = (evMonthlyCost / maxBarValue) * 100;
+
+  // Donut chart SVG geometry (radius 44, circumference 276.46)
+  const circumference = 2 * Math.PI * 44;
+  const homeDash = (homeChargingPct / 100) * circumference;
+  const spkluDash = circumference - homeDash;
 
   return (
-    <div className="space-y-8">
-      {/* Grid Utama: Form Input (Kiri) & Ringkasan Hasil (Kanan) */}
-      <div className="grid gap-8 lg:grid-cols-12">
-        {/* Kolom Kiri: Formulir Parameter Input */}
-        <div className="space-y-6 lg:col-span-7">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-            <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-base font-bold text-slate-900">
-                1. Parameter Kendaraan &amp; Perjalanan Harian
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Tentukan efisiensi konsumsi daya kendaraan listrik dan estimasi jarak tempuh harian Anda.
-              </p>
+    <div className="grid items-start gap-5 @5xl:grid-cols-[360px_minmax(0,1fr)]">
+      {/* ============================================================== */}
+      {/* KOLOM KIRI: Form Input & Kontrol Parameter Kendaraan           */}
+      {/* ============================================================== */}
+      <div className="rounded-2xl border border-line bg-white p-5 shadow-sm space-y-6 @5xl:sticky @5xl:top-24">
+        {/* Input 1: Dropdown Unit EV */}
+        <div>
+          <label className="block">
+            <span className="mb-2 block text-[13px] font-semibold text-ink">
+              Unit EV
+            </span>
+            <div className="relative">
+              <select
+                value={selectedPresetId}
+                onChange={(e) => setSelectedPresetId(e.target.value)}
+                className="h-11 w-full appearance-none rounded-xl border border-line bg-white pl-3.5 pr-10 text-sm text-ink transition hover:border-slate-300 focus:border-electric focus:outline-none"
+              >
+                <optgroup label="Motor Listrik">
+                  {EV_SAMPLE_PRESETS.filter((p) => p.vehicleType === "Motor").map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.consumptionKwh100km} kWh/100 km)
+                      </option>
+                    )
+                  )}
+                </optgroup>
+                <optgroup label="Mobil Listrik">
+                  {EV_SAMPLE_PRESETS.filter((p) => p.vehicleType === "Mobil").map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.consumptionKwh100km} kWh/100 km)
+                      </option>
+                    )
+                  )}
+                </optgroup>
+                <option value="custom">Kustom (Input Efisiensi Sendiri)</option>
+              </select>
+              <svg
+                width="16"
+                height="16"
+                style={{ width: 16, height: 16 }}
+                className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-mute"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </div>
+          </label>
 
-            {/* Pilihan Preset Contoh Cepat */}
-            <div>
-              <span className="block text-xs font-semibold text-slate-500 mb-2">
-                Pilih Contoh Spesifikasi Kendaraan (Preset Opsional):
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {EV_SAMPLE_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handleSelectPreset(p.id)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
-                  >
-                    {p.name}
-                  </button>
-                ))}
+          {/* Input Kustom jika user memilih Kustom */}
+          {selectedPresetId === "custom" && (
+            <div className="mt-3">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Konsumsi Energi (kWh / 100 km):
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={customConsumption}
+                onChange={(e) => setCustomConsumption(e.target.value)}
+                className="h-10 w-full rounded-xl border border-line px-3 text-sm text-ink focus:border-electric focus:outline-none"
+                placeholder="Misal: 12.5"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Input 2: Slider Jarak per hari */}
+        <div>
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <span className="text-[13px] font-semibold text-ink">
+              Jarak per hari
+            </span>
+            <span className="num text-sm font-bold text-brand">
+              {dailyDistanceKm} km
+            </span>
+          </div>
+          <input
+            type="range"
+            aria-label="Jarak per hari"
+            min={5}
+            max={150}
+            step={5}
+            value={dailyDistanceKm}
+            onChange={(e) => setDailyDistanceKm(Number(e.target.value))}
+            style={distFillStyle}
+            className="block w-full cursor-pointer"
+          />
+          <div className="mt-1.5 flex justify-between text-[11px] text-mute">
+            <span>5 km</span>
+            <span>150 km</span>
+          </div>
+        </div>
+
+        {/* Input 3: Slider Porsi charging di rumah */}
+        <div>
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <span className="text-[13px] font-semibold text-ink">
+              Porsi charging di rumah
+            </span>
+            <span className="num text-sm font-bold text-brand">
+              {homeChargingPct}%
+            </span>
+          </div>
+          <input
+            type="range"
+            aria-label="Porsi charging di rumah"
+            min={0}
+            max={100}
+            step={5}
+            value={homeChargingPct}
+            onChange={(e) => setHomeChargingPct(Number(e.target.value))}
+            style={homeFillStyle}
+            className="block w-full cursor-pointer"
+          />
+          <div className="mt-1.5 flex justify-between text-[11px] text-mute">
+            <span>0%</span>
+            <span>100%</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-mute">
+            Sisanya di SPKLU ({formatIdr(spkluTariff)}/kWh). Rumah{" "}
+            {formatIdr(homeTariff)}/kWh.
+          </p>
+        </div>
+
+        {/* Pengaturan Tambahan Tarif Listrik (Collapsible) */}
+        <div className="border-t border-line pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvancedTariff(!showAdvancedTariff)}
+            className="flex w-full items-center justify-between text-xs font-semibold text-mute hover:text-electric"
+          >
+            <span>Sesuaikan Golongan Tarif PLN</span>
+            <svg
+              width="14"
+              height="14"
+              style={{ width: 14, height: 14 }}
+              className={`transition-transform ${showAdvancedTariff ? "rotate-180" : ""}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {showAdvancedTariff && (
+            <div className="mt-3 space-y-3 pt-1">
+              <div>
+                <label className="block text-[11px] font-semibold text-mute mb-1">
+                  Pilih Golongan PLN Rumah:
+                </label>
+                <select
+                  value={homeTariff}
+                  onChange={(e) => setHomeTariff(Number(e.target.value))}
+                  className="w-full rounded-lg border border-line bg-white p-2 text-xs text-ink"
+                >
+                  {PLN_TARIFF_REFERENCES.map((t) => (
+                    <option key={t.id} value={t.tariffPerKwh}>
+                      {t.label} (Rp {formatNumber(t.tariffPerKwh, 2)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-mute mb-1">
+                  Tarif SPKLU (Rp / kWh):
+                </label>
+                <input
+                  type="number"
+                  value={spkluTariff}
+                  onChange={(e) => setSpkluTariff(Number(e.target.value))}
+                  className="w-full rounded-lg border border-line px-2.5 py-1.5 text-xs text-ink"
+                />
               </div>
             </div>
+          )}
+        </div>
+      </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <InputField
-                label="Konsumsi Energi EV"
-                unitSuffix="kWh / 100 km"
-                value={consumptionInput}
-                onChange={(e) => setConsumptionInput(e.target.value)}
-                placeholder="Contoh: 15"
-                helperText="Konsumsi daya spesifikasi resmi atau pengujian."
-                errorMessage={
-                  !parsedConsumption.valid
-                    ? parsedConsumption.error
-                    : validationErrors.consumptionKwh100km
-                }
-              />
-
-              <InputField
-                label="Jarak Tempuh Harian"
-                unitSuffix="km / hari"
-                value={dailyDistanceInput}
-                onChange={(e) => setDailyDistanceInput(e.target.value)}
-                placeholder="Contoh: 30"
-                helperText="Rata-rata jarak tempuh yang ditempuh setiap hari."
-                errorMessage={
-                  !parsedDistance.valid
-                    ? parsedDistance.error
-                    : validationErrors.dailyDistanceKm
-                }
-              />
+      {/* ============================================================== */}
+      {/* KOLOM KANAN: Hasil Metrik, Komparasi, & Sumber Charging        */}
+      {/* ============================================================== */}
+      <div className="space-y-5">
+        {/* 1. Baris 3 Kartu Metrik Persis Figma Screen 09 */}
+        <div className="grid gap-4 @3xl:grid-cols-3">
+          {/* Kartu 1: Konsumsi energi */}
+          <div className="rounded-2xl border border-line bg-white p-5 shadow-sm flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[13px] font-medium text-mute">
+                Konsumsi energi
+              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-tint text-electric">
+                <svg
+                  width="18"
+                  height="18"
+                  style={{ width: 18, height: 18 }}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+              </span>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <span className="num text-2xl font-extrabold text-ink">
+                  {calculationData
+                    ? formatNumber(calculationData.monthlyKwh, 1)
+                    : "-"}
+                </span>
+                <span className="text-xs font-semibold text-mute">
+                  kWh/bulan
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-mute">
+                {formatNumber(effectiveConsumption, 1)} kWh/100 km
+              </p>
             </div>
           </div>
 
-          {/* Bagian 2: Pengisian Daya & Tarif */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-            <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-base font-bold text-slate-900">
-                2. Lokasi Pengisian Daya &amp; Tarif Listrik
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Atur proporsi pengisian di rumah vs stasiun umum (SPKLU) serta tarif listrik yang berlaku.
+          {/* Kartu 2: Biaya listrik */}
+          <div className="rounded-2xl border border-line bg-white p-5 shadow-sm flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[13px] font-medium text-mute">
+                Biaya listrik
+              </span>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <span className="num text-2xl font-extrabold text-ink">
+                  {calculationData
+                    ? formatIdr(calculationData.totalCostMonthly)
+                    : "-"}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-mute">
+                {calculationData
+                  ? `${formatIdr(calculationData.costPerKm)}/km`
+                  : "-"}
               </p>
             </div>
+          </div>
 
-            {/* Slider & Input Persentase Rumah vs SPKLU */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label htmlFor="home-charging-slider" className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Proporsi Pengisian di Rumah
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={homeChargingPctInput}
-                    onChange={(e) => setHomeChargingPctInput(e.target.value)}
-                    className="w-16 rounded-md border border-slate-300 px-2 py-1 text-right text-xs font-bold text-slate-900 focus:border-blue-500 focus:outline-none"
-                  />
-                  <span className="text-xs font-bold text-slate-500">%</span>
-                </div>
-              </div>
-
-              <input
-                id="home-charging-slider"
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={parsedHomePct.valid ? Math.max(0, Math.min(100, parsedHomePct.value!)) : 80}
-                onChange={(e) => setHomeChargingPctInput(e.target.value)}
-                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-600"
-              />
-
-              <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                <span>
-                  Rumah:{" "}
-                  <strong>
-                    {parsedHomePct.valid
-                      ? Math.max(0, Math.min(100, parsedHomePct.value!))
-                      : 0}
-                    %
-                  </strong>
-                </span>
-                <span>
-                  SPKLU:{" "}
-                  <strong>
-                    {parsedHomePct.valid
-                      ? 100 - Math.max(0, Math.min(100, parsedHomePct.value!))
-                      : 0}
-                    %
-                  </strong>
+          {/* Kartu 3: Hemat vs BBM */}
+          <div className="rounded-2xl border border-line bg-white p-5 shadow-sm flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[13px] font-medium text-mute">
+                Hemat vs BBM
+              </span>
+              <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-ok">
+                {savingsPercent}%
+              </span>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <span className="num text-2xl font-extrabold text-ok">
+                  {formatIdr(savingsMonthly)}
                 </span>
               </div>
-              {!parsedHomePct.valid && (
-                <p className="text-xs font-medium text-red-600">{parsedHomePct.error}</p>
-              )}
-            </div>
-
-            {/* Pilihan Tarif Rumah Tangga PLN */}
-            <div className="space-y-2">
-              <label htmlFor={selectId} className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                Pilih Golongan Daya &amp; Tarif PLN Rumah:
-              </label>
-              <select
-                id={selectId}
-                value={selectedTariffId}
-                onChange={(e) => handleSelectPlnTariff(e.target.value)}
-                className="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 transition focus:border-blue-500 focus:outline-none"
-              >
-                {PLN_TARIFF_REFERENCES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label} — Rp {formatNumber(t.tariffPerKwh, 2)} / kWh
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <InputField
-                label="Tarif Listrik Rumah"
-                unitSuffix="Rp / kWh"
-                value={homeTariffInput}
-                onChange={(e) => {
-                  setHomeTariffInput(e.target.value);
-                  setSelectedTariffId("custom");
-                }}
-                placeholder="Contoh: 1444.70"
-                helperText="Tarif listrik per kWh sesuai golongan daya rumah Anda."
-                errorMessage={
-                  !parsedHomeTariff.valid
-                    ? parsedHomeTariff.error
-                    : validationErrors.homeTariffPerKwh
-                }
-              />
-
-              <InputField
-                label="Tarif SPKLU (Contoh Input)"
-                unitSuffix="Rp / kWh"
-                value={spkluTariffInput}
-                onChange={(e) => setSpkluTariffInput(e.target.value)}
-                placeholder="Contoh: 2466"
-                helperText="Nilai contoh pengujian form (bukan tarif baku pemerintah)."
-                errorMessage={
-                  !parsedSpkluTariff.valid
-                    ? parsedSpkluTariff.error
-                    : validationErrors.spkluTariffPerKwh
-                }
-              />
+              <p className="mt-1 text-xs text-mute">
+                vs {iceName} ({formatIdr(bbmMonthlyCost)}/bln)
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Kolom Kanan: Ringkasan Hasil Kalkulasi */}
-        <div className="space-y-6 lg:col-span-5">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-            <div className="border-b border-slate-100 pb-3">
-              <div className="flex items-center justify-between">
-                <span className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800">
-                  Hasil Simulasi
-                </span>
-                <span className="text-xs text-slate-400">Periode: 30 Hari</span>
-              </div>
-              <h2 className="mt-2 text-lg font-bold text-slate-900">
-                Estimasi Konsumsi &amp; Biaya Energi
-              </h2>
+        {/* 2. Kartu Komparasi Biaya Bulanan (Figma Bar Chart Component ar) */}
+        <div className="rounded-2xl border border-line bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-ink">
+                Komparasi biaya bulanan
+              </h3>
+              <p className="mt-0.5 text-[13px] text-mute">
+                BBM vs listrik ({dailyDistanceKm} km/hari &middot; {monthlyKm} km/bulan)
+              </p>
             </div>
-
-            {calculationResult ? (
-              <div className="space-y-4">
-                <ResultCard
-                  label="Estimasi Total Biaya Listrik Bulanan"
-                  value={formatIdr(calculationResult.totalCostMonthly)}
-                  tone="brand"
-                  subtext={`Untuk jarak tempuh ${formatNumber(calculationResult.monthlyDistanceKm)} km/bulan (30 hari).`}
-                />
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <ResultCard
-                    label="Biaya Energi per Km"
-                    value={formatIdr(calculationResult.costPerKm)}
-                    unit="/ km"
-                    tone="ok"
-                  />
-                  <ResultCard
-                    label="Total Kebutuhan Listrik"
-                    value={formatNumber(calculationResult.monthlyKwh, 2)}
-                    unit="kWh / bln"
-                  />
-                </div>
-
-                {/* Rincian Pembagian Energi & Biaya */}
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                    Rincian Pembagian Pengisian:
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-600">Pengisian Rumah ({calculationResult.homeKwh} kWh)</span>
-                    <span className="font-bold text-slate-900">
-                      {formatIdr(calculationResult.homeCostMonthly)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-600">Pengisian SPKLU ({calculationResult.spkluKwh} kWh)</span>
-                    <span className="font-bold text-slate-900">
-                      {formatIdr(calculationResult.spkluCostMonthly)}
-                    </span>
-                  </div>
-
-                  <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs font-extrabold text-slate-900">
-                    <span>Total Biaya Energi</span>
-                    <span className="text-blue-700">
-                      {formatIdr(calculationResult.totalCostMonthly)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center">
-                <p className="text-sm font-semibold text-slate-600">
-                  Masukkan parameter input yang valid di sisi kiri untuk melihat hasil kalkulasi.
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Pastikan seluruh field angka terisi dengan nilai numerik positif.
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Rujukan & Catatan Regulasi Resmi */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs text-xs space-y-3 text-slate-600">
-            <div className="font-bold text-slate-900">Dasar Rujukan Tarif Resmi:</div>
-            <ul className="space-y-1.5 list-disc list-inside">
-              <li>
-                <strong>Tarif PLN TW IV 2024:</strong> Mengacu pada{" "}
-                <a
-                  href="https://www.esdm.go.id/id/media-center/arsip-berita/pemerintah-putuskan-tarif-listrik-triwulan-iv-tetap"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Siaran Pers ESDM No. 544/2024
-                </a>{" "}
-                &amp;{" "}
-                <a
-                  href="https://web.pln.co.id/pelanggan/tarif-tenaga-listrik"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Laman Resmi Tarif PT PLN
-                </a>.
+          <div className="flex items-end justify-center gap-12 pt-4 pb-2" style={{ height: 210 }}>
+            {/* Bar BBM */}
+            <div className="flex flex-1 max-w-[160px] flex-col items-center justify-end h-full">
+              <span className="num mb-2 text-sm font-extrabold text-ink">
+                {formatIdr(bbmMonthlyCost)}
+              </span>
+              <div
+                className="w-full rounded-t-xl bg-slate-400 transition-all duration-300"
+                style={{ height: `${Math.max(12, bbmBarPercent)}%` }}
+              />
+              <span className="mt-3 block text-center text-xs font-semibold text-mute">
+                BBM &middot; {iceName}
+              </span>
+            </div>
+
+            {/* Bar Listrik EV */}
+            <div className="flex flex-1 max-w-[160px] flex-col items-center justify-end h-full">
+              <span className="num mb-2 text-sm font-extrabold text-electric">
+                {formatIdr(evMonthlyCost)}
+              </span>
+              <div
+                className="w-full rounded-t-xl bg-electric transition-all duration-300"
+                style={{ height: `${Math.max(12, evBarPercent)}%` }}
+              />
+              <span className="mt-3 block text-center text-xs font-bold text-electric">
+                {currentPreset?.name || "EV"} &middot; listrik
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Kartu Sumber Charging (Figma Donut Chart Component sr & cr) */}
+        <div className="rounded-2xl border border-line bg-white p-5 shadow-sm">
+          <div className="mb-4">
+            <h3 className="text-base font-bold text-ink">Sumber charging</h3>
+            <p className="mt-0.5 text-[13px] text-mute">
+              Proporsi pemakaian energi dan alokasi biaya pengisian bulanan
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center gap-8 py-2 @3xl:flex-row @3xl:justify-around">
+            {/* Donut Chart SVG */}
+            <div className="relative shrink-0" style={{ width: 150, height: 150 }}>
+              <svg
+                viewBox="0 0 120 120"
+                width="150"
+                height="150"
+                role="img"
+                aria-label="Grafik donat sumber charging"
+                className="-rotate-90"
+              >
+                {/* Background Ring */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="44"
+                  fill="none"
+                  stroke="#f1f5f9"
+                  strokeWidth="16"
+                />
+                {/* Home Charging Arc (Biru Terang) */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="44"
+                  fill="none"
+                  stroke="#2563eb"
+                  strokeWidth="16"
+                  strokeDasharray={`${Math.max(0, homeDash - 1.5)} ${circumference}`}
+                  strokeDashoffset={0}
+                  className="transition-all duration-300"
+                />
+                {/* SPKLU Arc (Biru Gelap) */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="44"
+                  fill="none"
+                  stroke="#1e3a8a"
+                  strokeWidth="16"
+                  strokeDasharray={`${Math.max(0, spkluDash - 1.5)} ${circumference}`}
+                  strokeDashoffset={-homeDash}
+                  className="transition-all duration-300"
+                />
+              </svg>
+              {/* Teks Persentase Tengah */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="num text-2xl font-extrabold text-ink">
+                  {homeChargingPct}%
+                </span>
+                <span className="text-[10px] font-semibold text-mute uppercase tracking-wider">
+                  Rumah
+                </span>
+              </div>
+            </div>
+
+            {/* Legend List (cr) */}
+            <ul className="min-w-0 flex-1 space-y-3 w-full max-w-sm">
+              <li className="flex items-center justify-between gap-3 text-sm rounded-xl border border-line bg-canvas p-3">
+                <span className="flex items-center gap-2.5 text-slate-700 font-medium">
+                  <span className="h-3 w-3 rounded-sm bg-[#2563eb] shrink-0" />
+                  Charging rumah ({calculationData?.homeKwh ?? 0} kWh)
+                </span>
+                <span className="num font-bold text-ink">
+                  {calculationData
+                    ? formatIdr(calculationData.homeCostMonthly)
+                    : "-"}
+                </span>
               </li>
-              <li>
-                <strong>Regulasi SPKLU B2B:</strong> Diatur dalam{" "}
-                <a
-                  href="https://peraturan.go.id/id/permen-esdm-no-1-tahun-2023"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Permen ESDM No. 1 Tahun 2023
-                </a>{" "}
-                (formula pengali tarif curah B2B).
-              </li>
-              <li>
-                <strong>Biaya Layanan SPKLU Sesi:</strong> Diatur dalam{" "}
-                <a
-                  href="https://jdih.esdm.go.id/dokumen/view?id=2388"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Kepmen ESDM No. 182.K/TL.04/MEM.S/2023
-                </a>{" "}
-                (maks Rp 25.000 fast, Rp 57.000 ultrafast). Biaya per sesi tidak termasuk dalam perhitungan energi per kWh bulanan.
+
+              <li className="flex items-center justify-between gap-3 text-sm rounded-xl border border-line bg-canvas p-3">
+                <span className="flex items-center gap-2.5 text-slate-700 font-medium">
+                  <span className="h-3 w-3 rounded-sm bg-[#1e3a8a] shrink-0" />
+                  SPKLU publik ({calculationData?.spkluKwh ?? 0} kWh)
+                </span>
+                <span className="num font-bold text-ink">
+                  {calculationData
+                    ? formatIdr(calculationData.spkluCostMonthly)
+                    : "-"}
+                </span>
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Dasar Rujukan Resmi */}
+        <div className="rounded-2xl border border-line bg-white p-5 shadow-xs text-xs space-y-2 text-mute">
+          <div className="font-bold text-ink">Dasar Rujukan Tarif:</div>
+          <p>
+            Tarif listrik rumah menggunakan penetapan resmi PLN Triwulan IV 2024
+            (R-1/1.300–2.200 VA: Rp 1.444,70/kWh) sesuai{" "}
+            <a
+              href="https://www.esdm.go.id/id/media-center/arsip-berita/pemerintah-putuskan-tarif-listrik-triwulan-iv-tetap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-electric underline font-medium"
+            >
+              Siaran Pers ESDM No. 544/2024
+            </a>
+            . Tarif SPKLU ({formatIdr(spkluTariff)}/kWh) merupakan nilai contoh
+            berdasarkan regulasi{" "}
+            <a
+              href="https://peraturan.go.id/id/permen-esdm-no-1-tahun-2023"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-electric underline font-medium"
+            >
+              Permen ESDM No. 1/2023
+            </a>{" "}
+            &amp;{" "}
+            <a
+              href="https://jdih.esdm.go.id/dokumen/view?id=2388"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-electric underline font-medium"
+            >
+              Kepmen ESDM No. 182.K/2023
+            </a>
+            .
+          </p>
         </div>
       </div>
     </div>

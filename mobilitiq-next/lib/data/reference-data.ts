@@ -12,9 +12,14 @@ export interface TariffReference {
 export interface EvPreset {
   id: string;
   name: string;
+  brand: string;
   vehicleType: "Motor" | "Mobil";
   consumptionKwh100km: number;
   batteryCapacityKwh: number;
+  priceIdr: number;
+  rangeKm: number;
+  iceName: string;
+  iceKmL: number;
   description: string;
 }
 
@@ -71,8 +76,7 @@ export const PLN_TARIFF_REFERENCES: TariffReference[] = [
 
 /**
  * Nilai Contoh Bawaan Input SPKLU (Mock / Placeholder)
- * PERHATIAN: Nilai ini BUKAN regulasi tarif mutlak pemerintah dan TANPA dasar survei historis.
- * Pengguna dapat menginputkan tarif riil operator SPKLU secara bebas.
+ * Nilai ini diambil dari nilai percontohan antarmuka MobilitiQ.
  */
 export const SPKLU_MOCK_REFERENCE = {
   defaultTariffPerKwh: 2466,
@@ -93,32 +97,124 @@ export const SPKLU_MOCK_REFERENCE = {
 };
 
 /**
- * Contoh Preset Spesifikasi EV untuk Pengujian
+ * Katalog Preset Kendaraan Listrik (Persis Data Figma Prototype)
  */
 export const EV_SAMPLE_PRESETS: EvPreset[] = [
   {
-    id: "preset-ev-motor",
-    name: "Contoh Motor Listrik Komuter (3,5 kWh/100 km)",
+    id: "fox-r",
+    brand: "Polytron",
+    name: "Polytron Fox-R",
+    vehicleType: "Motor",
+    consumptionKwh100km: 3.2,
+    batteryCapacityKwh: 2.4,
+    priceIdr: 23900000,
+    rangeKm: 85,
+    iceName: "Honda Vario 125",
+    iceKmL: 48,
+    description: "Motor listrik komuter perkotaan, 3,2 kWh/100 km.",
+  },
+  {
+    id: "g1",
+    brand: "Gesits",
+    name: "Gesits G1",
+    vehicleType: "Motor",
+    consumptionKwh100km: 3.4,
+    batteryCapacityKwh: 1.8,
+    priceIdr: 29900000,
+    rangeKm: 70,
+    iceName: "Honda Vario 125",
+    iceKmL: 48,
+    description: "Motor listrik lokal dengan swap baterai, 3,4 kWh/100 km.",
+  },
+  {
+    id: "t1800",
+    brand: "United",
+    name: "United T1800",
     vehicleType: "Motor",
     consumptionKwh100km: 3.5,
-    batteryCapacityKwh: 3.7,
-    description: "Estimasi konsumsi motor listrik komuter harian.",
+    batteryCapacityKwh: 3.0,
+    priceIdr: 33500000,
+    rangeKm: 100,
+    iceName: "Yamaha NMAX 155",
+    iceKmL: 40,
+    description: "Maxi scooter listrik, 3,5 kWh/100 km.",
   },
   {
-    id: "preset-ev-car-compact",
-    name: "Contoh Mobil Listrik Kompak (12,5 kWh/100 km)",
+    id: "em1",
+    brand: "Honda",
+    name: "Honda EM1 e:",
+    vehicleType: "Motor",
+    consumptionKwh100km: 3.1,
+    batteryCapacityKwh: 1.5,
+    priceIdr: 40000000,
+    rangeKm: 48,
+    iceName: "Honda Vario 160",
+    iceKmL: 45,
+    description: "Motor listrik ringkas dengan Honda Mobile Power Pack.",
+  },
+  {
+    id: "alva",
+    brand: "Alva",
+    name: "Alva One",
+    vehicleType: "Motor",
+    consumptionKwh100km: 2.9,
+    batteryCapacityKwh: 3.4,
+    priceIdr: 36800000,
+    rangeKm: 120,
+    iceName: "Yamaha NMAX 155",
+    iceKmL: 40,
+    description: "Skuter listrik performa tinggi dengan fitur IoT.",
+  },
+  {
+    id: "seagull",
+    brand: "BYD",
+    name: "BYD Seagull",
     vehicleType: "Mobil",
-    consumptionKwh100km: 12.5,
+    consumptionKwh100km: 11.5,
+    batteryCapacityKwh: 38.9,
+    priceIdr: 150000000,
+    rangeKm: 305,
+    iceName: "Toyota Avanza",
+    iceKmL: 13,
+    description: "Hatchback listrik efisien, 11,5 kWh/100 km.",
+  },
+  {
+    id: "air-ev",
+    brand: "Wuling",
+    name: "Wuling Air ev Long Range",
+    vehicleType: "Mobil",
+    consumptionKwh100km: 10.5,
     batteryCapacityKwh: 26.7,
-    description: "Estimasi konsumsi mobil listrik perkotaan segmen A/B.",
+    priceIdr: 275000000,
+    rangeKm: 300,
+    iceName: "Honda Brio",
+    iceKmL: 15,
+    description: "City car listrik kompak populer, 10,5 kWh/100 km.",
   },
   {
-    id: "preset-ev-car-medium",
-    name: "Contoh Mobil Listrik Menengah (15,0 kWh/100 km)",
+    id: "e-c3",
+    brand: "Citroën",
+    name: "Citroën ë-C3",
     vehicleType: "Mobil",
-    consumptionKwh100km: 15.0,
-    batteryCapacityKwh: 58.0,
-    description: "Estimasi konsumsi crossover / sedan listrik segmen C.",
+    consumptionKwh100km: 12.0,
+    batteryCapacityKwh: 29.2,
+    priceIdr: 377000000,
+    rangeKm: 320,
+    iceName: "Toyota Avanza",
+    iceKmL: 13,
+    description: "Crossover listrik nyaman, 12,0 kWh/100 km.",
+  },
+  {
+    id: "ioniq-5",
+    brand: "Hyundai",
+    name: "Hyundai Ioniq 5 Signature",
+    vehicleType: "Mobil",
+    consumptionKwh100km: 14.5,
+    batteryCapacityKwh: 72.6,
+    priceIdr: 782000000,
+    rangeKm: 451,
+    iceName: "Mitsubishi Xpander",
+    iceKmL: 12,
+    description: "Crossover listrik premium jarak jauh, 14,5 kWh/100 km.",
   },
 ];
-
