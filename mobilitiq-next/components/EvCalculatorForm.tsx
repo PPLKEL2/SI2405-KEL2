@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useId } from "react";
+import React, { useState, useEffect, useId } from "react";
 import {
   calculateEvEnergy,
   type EvCalculationInput,
@@ -8,6 +8,7 @@ import {
 import {
   PLN_TARIFF_REFERENCES,
   EV_SAMPLE_PRESETS,
+  type TariffReference,
 } from "@/lib/data/reference-data";
 import { formatIdr, formatNumber } from "@/lib/format";
 import { parseStrictNumber } from "@/lib/parser";
@@ -23,6 +24,44 @@ export function EvCalculatorForm() {
   const [homeTariffInput, setHomeTariffInput] = useState<string>("1444.70");
   const [spkluTariffInput, setSpkluTariffInput] = useState<string>("2466");
   const [selectedTariffId, setSelectedTariffId] = useState<string>("pln-1300-2200");
+  const [activeTariffs, setActiveTariffs] = useState<TariffReference[]>(PLN_TARIFF_REFERENCES);
+
+  // Sinkronisasi dinamis parameter tarif aktif dari sistem pengelolaan tarif
+  useEffect(() => {
+    fetch("/api/energy-tariffs/active?category=PLN_HOME")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.ok && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped: TariffReference[] = json.data.map(
+            (item: {
+              id: string;
+              name: string;
+              pricePerUnit: number;
+              validFrom: string;
+              validTo: string | null;
+              sourceLabel?: string;
+              sourceUrl?: string;
+              notes?: string;
+            }) => ({
+              id: item.id,
+              category: "PLN_HOME" as const,
+              label: item.name,
+              tariffPerKwh: item.pricePerUnit,
+              period: item.validTo
+                ? `${item.validFrom} s.d. ${item.validTo}`
+                : `Mulai ${item.validFrom}`,
+              sourceLabel: item.sourceLabel || "Tarif Resmi Aktif",
+              sourceUrl: item.sourceUrl || "",
+              notes: item.notes || "",
+            }),
+          );
+          setActiveTariffs(mapped);
+        }
+      })
+      .catch(() => {
+        // Fallback aman ke PLN_TARIFF_REFERENCES jika offline / SSR
+      });
+  }, []);
 
   // Parser 2-tahap
   const parsedConsumption = parseStrictNumber(consumptionInput);
@@ -70,11 +109,18 @@ export function EvCalculatorForm() {
   // Handler pergantian golongan tarif PLN
   const handleSelectPlnTariff = (tariffId: string) => {
     setSelectedTariffId(tariffId);
-    const ref = PLN_TARIFF_REFERENCES.find((t) => t.id === tariffId);
+    const ref =
+      activeTariffs.find((t) => t.id === tariffId) ||
+      PLN_TARIFF_REFERENCES.find((t) => t.id === tariffId);
     if (ref) {
       setHomeTariffInput(ref.tariffPerKwh.toString());
     }
   };
+
+  const clampedHomePct = parsedHomePct.valid
+    ? Math.max(0, Math.min(100, parsedHomePct.value!))
+    : 80;
+  const clampedSpkluPct = 100 - clampedHomePct;
 
   return (
     <div className="space-y-8">
@@ -84,7 +130,7 @@ export function EvCalculatorForm() {
         <div className="space-y-6 lg:col-span-7">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="font-heading text-base font-bold text-slate-900">
                 1. Parameter Kendaraan &amp; Perjalanan Harian
               </h2>
               <p className="mt-1 text-xs text-slate-500">
@@ -92,22 +138,30 @@ export function EvCalculatorForm() {
               </p>
             </div>
 
-            {/* Pilihan Preset Contoh Cepat */}
+            {/* Pilihan Preset Contoh Cepat (Pill Buttons sesuai Figma) */}
             <div>
               <span className="block text-xs font-semibold text-slate-500 mb-2">
-                Pilih Contoh Spesifikasi Kendaraan (Preset Opsional):
+                Pilih Contoh Spesifikasi Kendaraan (Preset Populer):
               </span>
               <div className="flex flex-wrap gap-2">
-                {EV_SAMPLE_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handleSelectPreset(p.id)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
-                  >
-                    {p.name}
-                  </button>
-                ))}
+                {EV_SAMPLE_PRESETS.map((p) => {
+                  const isSelected = consumptionInput === p.consumptionKwh100km.toString();
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSelectPreset(p.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition shadow-2xs ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-100"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span>{p.vehicleType === "Motor" ? "🛵" : "🚗"}</span>
+                      <span>{p.name}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -145,7 +199,7 @@ export function EvCalculatorForm() {
           {/* Bagian 2: Pengisian Daya & Tarif */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <div className="border-b border-slate-100 pb-3">
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="font-heading text-base font-bold text-slate-900">
                 2. Lokasi Pengisian Daya &amp; Tarif Listrik
               </h2>
               <p className="mt-1 text-xs text-slate-500">
@@ -166,7 +220,7 @@ export function EvCalculatorForm() {
                     max="100"
                     value={homeChargingPctInput}
                     onChange={(e) => setHomeChargingPctInput(e.target.value)}
-                    className="w-16 rounded-md border border-slate-300 px-2 py-1 text-right text-xs font-bold text-slate-900 focus:border-blue-500 focus:outline-none"
+                    className="w-16 rounded-xl border border-slate-300 px-2 py-1 text-right text-xs font-bold text-slate-900 focus:border-blue-500 focus:outline-none"
                   />
                   <span className="text-xs font-bold text-slate-500">%</span>
                 </div>
@@ -178,29 +232,31 @@ export function EvCalculatorForm() {
                 min="0"
                 max="100"
                 step="5"
-                value={parsedHomePct.valid ? Math.max(0, Math.min(100, parsedHomePct.value!)) : 80}
+                value={clampedHomePct}
                 onChange={(e) => setHomeChargingPctInput(e.target.value)}
                 className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-600"
               />
 
+              {/* Visual Proportion Bar matching Figma */}
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 flex">
+                <div
+                  className="bg-blue-600 transition-all duration-200"
+                  style={{ width: `${clampedHomePct}%` }}
+                />
+                <div
+                  className="bg-purple-600 transition-all duration-200"
+                  style={{ width: `${clampedSpkluPct}%` }}
+                />
+              </div>
+
               <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                <span>
-                  Rumah:{" "}
-                  <strong>
-                    {parsedHomePct.valid
-                      ? Math.max(0, Math.min(100, parsedHomePct.value!))
-                      : 0}
-                    %
-                  </strong>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-blue-600" />
+                  Pengisian Rumah: <strong className="text-slate-900">{clampedHomePct}%</strong>
                 </span>
-                <span>
-                  SPKLU:{" "}
-                  <strong>
-                    {parsedHomePct.valid
-                      ? 100 - Math.max(0, Math.min(100, parsedHomePct.value!))
-                      : 0}
-                    %
-                  </strong>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-purple-600" />
+                  SPKLU Publik: <strong className="text-slate-900">{clampedSpkluPct}%</strong>
                 </span>
               </div>
               {!parsedHomePct.valid && (
@@ -219,7 +275,7 @@ export function EvCalculatorForm() {
                 onChange={(e) => handleSelectPlnTariff(e.target.value)}
                 className="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 transition focus:border-blue-500 focus:outline-none"
               >
-                {PLN_TARIFF_REFERENCES.map((t) => (
+                {activeTariffs.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.label} — Rp {formatNumber(t.tariffPerKwh, 2)} / kWh
                   </option>
@@ -251,7 +307,7 @@ export function EvCalculatorForm() {
                 value={spkluTariffInput}
                 onChange={(e) => setSpkluTariffInput(e.target.value)}
                 placeholder="Contoh: 2466"
-                helperText="Nilai contoh pengujian form (bukan tarif baku pemerintah)."
+                helperText="Nilai acuan pengujian pengisian daya di stasiun umum."
                 errorMessage={
                   !parsedSpkluTariff.valid
                     ? parsedSpkluTariff.error
@@ -267,12 +323,12 @@ export function EvCalculatorForm() {
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
             <div className="border-b border-slate-100 pb-3">
               <div className="flex items-center justify-between">
-                <span className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800">
-                  Hasil Simulasi
+                <span className="rounded-md bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">
+                  Ringkasan Estimasi
                 </span>
                 <span className="text-xs text-slate-400">Periode: 30 Hari</span>
               </div>
-              <h2 className="mt-2 text-lg font-bold text-slate-900">
+              <h2 className="font-heading mt-2 text-lg font-bold text-slate-900">
                 Estimasi Konsumsi &amp; Biaya Energi
               </h2>
             </div>
@@ -283,7 +339,7 @@ export function EvCalculatorForm() {
                   label="Estimasi Total Biaya Listrik Bulanan"
                   value={formatIdr(calculationResult.totalCostMonthly)}
                   tone="brand"
-                  subtext={`Untuk jarak tempuh ${formatNumber(calculationResult.monthlyDistanceKm)} km/bulan (30 hari).`}
+                  subtext={`Untuk estimasi jarak tempuh ${formatNumber(calculationResult.monthlyDistanceKm)} km/bulan (30 hari).`}
                 />
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -294,7 +350,7 @@ export function EvCalculatorForm() {
                     tone="ok"
                   />
                   <ResultCard
-                    label="Total Kebutuhan Listrik"
+                    label="Total Daya Listrik"
                     value={formatNumber(calculationResult.monthlyKwh, 2)}
                     unit="kWh / bln"
                   />
@@ -321,7 +377,7 @@ export function EvCalculatorForm() {
                   </div>
 
                   <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs font-extrabold text-slate-900">
-                    <span>Total Biaya Energi</span>
+                    <span>Total Pengeluaran Energi</span>
                     <span className="text-blue-700">
                       {formatIdr(calculationResult.totalCostMonthly)}
                     </span>
@@ -345,7 +401,7 @@ export function EvCalculatorForm() {
             <div className="font-bold text-slate-900">Dasar Rujukan Tarif Resmi:</div>
             <ul className="space-y-1.5 list-disc list-inside">
               <li>
-                <strong>Tarif PLN TW IV 2024:</strong> Mengacu pada{" "}
+                <strong>Tarif Listrik Rumah Tangga PLN:</strong> Mengacu pada{" "}
                 <a
                   href="https://www.esdm.go.id/id/media-center/arsip-berita/pemerintah-putuskan-tarif-listrik-triwulan-iv-tetap"
                   target="_blank"

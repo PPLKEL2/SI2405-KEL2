@@ -30,14 +30,15 @@ export function ResultCard({
       : "text-slate-900";
 
   return (
-    <div className={`rounded-2xl border p-4 shadow-xs transition ${toneBg}`}>
-      <div className="text-xs font-semibold text-slate-500">{label}</div>
-      <div className="mt-1 flex items-baseline gap-1.5">
-        <span className={`text-2xl font-black tracking-tight ${valueColor}`}>{value}</span>
+    <div className={`rounded-2xl border p-4.5 shadow-xs transition ${toneBg}`}>
+      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</div>
+      <div className="mt-1.5 flex items-baseline gap-1.5">
+        <span className={`font-heading text-2xl sm:text-3xl font-extrabold tracking-tight num ${valueColor}`}>
+          {value}
+        </span>
         {unit && <span className="text-xs font-bold text-slate-500">{unit}</span>}
       </div>
-      {subtext && <p className="mt-1.5 text-xs text-slate-500">{subtext}</p>}
+      {subtext && <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">{subtext}</p>}
     </div>
   );
 }
-
