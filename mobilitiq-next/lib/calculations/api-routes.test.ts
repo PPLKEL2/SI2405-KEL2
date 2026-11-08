@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { GET as getTariffs, POST as postTariff } from "../../app/api/admin/energy-tariffs/route.ts";
 import { GET as getTariffById, PUT as putTariff, PATCH as patchTariff } from "../../app/api/admin/energy-tariffs/[id]/route.ts";
 import { GET as getHistories } from "../../app/api/admin/energy-tariffs/histories/route.ts";
+import { PUT as putBatchTariffs } from "../../app/api/admin/energy-tariffs/batch/route.ts";
 import { GET as getActiveTariffs } from "../../app/api/energy-tariffs/active/route.ts";
 import { energyTariffRepository } from "../storage/energy-tariff-repository.ts";
 
@@ -129,4 +130,33 @@ test("API Routes: GET /api/energy-tariffs/active menyaring parameter aktif per t
   const reqBad = new Request("http://localhost:3000/api/energy-tariffs/active?date=invalid-date");
   const resBad = await getActiveTariffs(reqBad);
   assert.equal(resBad.status, 400);
+});
+
+test("API Routes: PUT /api/admin/energy-tariffs/batch memperbarui beberapa tarif sekaligus", async () => {
+  energyTariffRepository.resetToDefaultSeed();
+
+  const req = new Request("http://localhost:3000/api/admin/energy-tariffs/batch", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      updates: [
+        { id: "bbm-pertalite", pricePerUnit: 10500 },
+        { id: "bbm-pertamax", pricePerUnit: 13000 },
+      ],
+      changedBy: "Superadmin",
+    }),
+  });
+
+  const res = await putBatchTariffs(req);
+  assert.equal(res.status, 200);
+
+  const json = await res.json();
+  assert.equal(json.ok, true);
+  assert.ok(json.updatedAt);
+
+  // Pastikan nilai baru tersimpan
+  const pertalite = json.data.find((t: { id: string }) => t.id === "bbm-pertalite");
+  const pertamax = json.data.find((t: { id: string }) => t.id === "bbm-pertamax");
+  assert.equal(pertalite.pricePerUnit, 10500);
+  assert.equal(pertamax.pricePerUnit, 13000);
 });

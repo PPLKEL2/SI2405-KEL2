@@ -106,7 +106,7 @@ export const DEFAULT_INITIAL_TARIFFS: EnergyTariff[] = [
   {
     id: "bbm-pertalite",
     code: "BBM_PERTALITE",
-    name: "Pertalite (RON 90 - JBKP Bersubsidi)",
+    name: "Pertalite",
     category: "BBM",
     pricePerUnit: 10000,
     unit: "Rp/liter",
@@ -115,25 +115,73 @@ export const DEFAULT_INITIAL_TARIFFS: EnergyTariff[] = [
     isActive: true,
     sourceLabel: "Kepmen ESDM No. 245.K/MG.01/MEM.M/2022",
     sourceUrl: "https://mypertamina.id/fuels-harga",
-    notes: "Harga resmi BBM penugasan Pertalite seluruh Indonesia.",
-    updatedAt: "2022-09-03T00:00:00.000Z",
-    updatedBy: "Sistem (Migrasi Seed)",
+    notes: "Harga resmi BBM penugasan Pertalite.",
+    updatedAt: "2024-10-01T00:00:00.000Z",
+    updatedBy: "Superadmin",
   },
   {
     id: "bbm-pertamax",
     code: "BBM_PERTAMAX",
-    name: "Pertamax (RON 92 - Non-Subsidi)",
+    name: "Pertamax",
     category: "BBM",
-    pricePerUnit: 12100,
+    pricePerUnit: 12500,
     unit: "Rp/liter",
-    validFrom: "2024-11-01",
+    validFrom: "2024-10-01",
     validTo: null,
     isActive: true,
-    sourceLabel: "Penetapan Harga Pertamina November 2024",
+    sourceLabel: "Penetapan Harga Pertamina Acuan",
     sourceUrl: "https://mypertamina.id/fuels-harga",
-    notes: "Harga BBM umum RON 92 wilayah DKI Jakarta & sekitarnya.",
-    updatedAt: "2024-11-01T00:00:00.000Z",
-    updatedBy: "Sistem (Migrasi Seed)",
+    notes: "Harga BBM RON 92 acuan.",
+    updatedAt: "2024-10-01T00:00:00.000Z",
+    updatedBy: "Superadmin",
+  },
+  {
+    id: "bbm-pertamax-turbo",
+    code: "BBM_PERTAMAX_TURBO",
+    name: "Pertamax Turbo",
+    category: "BBM",
+    pricePerUnit: 14000,
+    unit: "Rp/liter",
+    validFrom: "2024-10-01",
+    validTo: null,
+    isActive: true,
+    sourceLabel: "Penetapan Harga Pertamina Acuan",
+    sourceUrl: "https://mypertamina.id/fuels-harga",
+    notes: "Harga BBM RON 98 acuan.",
+    updatedAt: "2024-10-01T00:00:00.000Z",
+    updatedBy: "Superadmin",
+  },
+  {
+    id: "bbm-biosolar",
+    code: "BBM_BIOSOLAR",
+    name: "Biosolar",
+    category: "BBM",
+    pricePerUnit: 6800,
+    unit: "Rp/liter",
+    validFrom: "2022-09-03",
+    validTo: null,
+    isActive: true,
+    sourceLabel: "Kepmen ESDM / Pertamina Acuan",
+    sourceUrl: "https://mypertamina.id/fuels-harga",
+    notes: "Harga resmi Solar bersubsidi.",
+    updatedAt: "2024-10-01T00:00:00.000Z",
+    updatedBy: "Superadmin",
+  },
+  {
+    id: "bbm-dexlite",
+    code: "BBM_DEXLITE",
+    name: "Dexlite",
+    category: "BBM",
+    pricePerUnit: 13300,
+    unit: "Rp/liter",
+    validFrom: "2024-10-01",
+    validTo: null,
+    isActive: true,
+    sourceLabel: "Penetapan Harga Pertamina Acuan",
+    sourceUrl: "https://mypertamina.id/fuels-harga",
+    notes: "Harga BBM Diesel CN 51 acuan.",
+    updatedAt: "2024-10-01T00:00:00.000Z",
+    updatedBy: "Superadmin",
   },
 ];
 
@@ -524,6 +572,82 @@ export class EnergyTariffRepository {
     }
 
     return result;
+  }
+
+  /**
+   * Memperbarui beberapa nilai tarif sekaligus (PBI 9: Simpan Perubahan)
+   */
+  public updateMultiplePrices(
+    updates: Array<{ id: string; pricePerUnit: number; reason?: string }>,
+    author = "Superadmin",
+  ): { ok: true; data: EnergyTariff[]; updatedAt: string } | { ok: false; error: string } {
+    this.ensureInitialized();
+    const nowIso = new Date().toISOString();
+    const updatedList: EnergyTariff[] = [];
+
+    // Validasi awal: pastikan semua nilai numerik valid
+    for (const item of updates) {
+      const existing = this.inMemoryTariffs.find((t) => t.id === item.id);
+      if (!existing) continue;
+
+      if (
+        typeof item.pricePerUnit !== "number" ||
+        isNaN(item.pricePerUnit) ||
+        !Number.isFinite(item.pricePerUnit) ||
+        item.pricePerUnit <= 0
+      ) {
+        return {
+          ok: false,
+          error: `Tarif untuk "${existing.name}" harus berupa angka positif lebih dari 0.`,
+        };
+      }
+    }
+
+    // Terapkan perubahan
+    for (const item of updates) {
+      const existing = this.inMemoryTariffs.find((t) => t.id === item.id);
+      if (!existing) continue;
+
+      if (existing.pricePerUnit === item.pricePerUnit) {
+        continue;
+      }
+
+      const historyEntry: EnergyTariffHistory = {
+        id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        tariffId: existing.id,
+        tariffCode: existing.code,
+        tariffName: existing.name,
+        category: existing.category,
+        action: "UPDATE_PRICE",
+        oldPrice: existing.pricePerUnit,
+        newPrice: item.pricePerUnit,
+        oldUnit: existing.unit,
+        newUnit: existing.unit,
+        oldValidFrom: existing.validFrom,
+        newValidFrom: existing.validFrom,
+        oldValidTo: existing.validTo,
+        newValidTo: existing.validTo,
+        oldIsActive: existing.isActive,
+        newIsActive: existing.isActive,
+        changedBy: author,
+        reason: item.reason || "Pembaruan tarif dari halaman Manajemen Tarif Energi",
+        changedAt: nowIso,
+      };
+
+      existing.pricePerUnit = item.pricePerUnit;
+      existing.updatedAt = nowIso;
+      existing.updatedBy = author;
+
+      this.inMemoryHistories.unshift(historyEntry);
+      updatedList.push({ ...existing });
+    }
+
+    if (updatedList.length > 0) {
+      this.saveTariffsToFile();
+      this.saveHistoriesToFile();
+    }
+
+    return { ok: true, data: this.getAllTariffs(), updatedAt: nowIso };
   }
 
   /**

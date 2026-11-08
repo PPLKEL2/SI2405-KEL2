@@ -1,5 +1,68 @@
 [
   {
+    "id": "hist_1794141356056_uae6k",
+    "tariffId": "bbm-pertalite",
+    "tariffCode": "BBM_PERTALITE",
+    "tariffName": "Pertalite",
+    "category": "BBM",
+    "action": "UPDATE_PRICE",
+    "oldPrice": 10500,
+    "newPrice": 11000,
+    "oldUnit": "Rp/liter",
+    "newUnit": "Rp/liter",
+    "oldValidFrom": "2022-09-03",
+    "newValidFrom": "2022-09-03",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": true,
+    "newIsActive": true,
+    "changedBy": "Superadmin",
+    "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
+    "changedAt": "2026-11-08T12:35:56.055Z"
+  },
+  {
+    "id": "hist_1794141240560_xsoea",
+    "tariffId": "bbm-pertamax",
+    "tariffCode": "BBM_PERTAMAX",
+    "tariffName": "Pertamax",
+    "category": "BBM",
+    "action": "UPDATE_PRICE",
+    "oldPrice": 12500,
+    "newPrice": 13000,
+    "oldUnit": "Rp/liter",
+    "newUnit": "Rp/liter",
+    "oldValidFrom": "2024-10-01",
+    "newValidFrom": "2024-10-01",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": true,
+    "newIsActive": true,
+    "changedBy": "Superadmin",
+    "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
+    "changedAt": "2026-11-08T12:34:00.559Z"
+  },
+  {
+    "id": "hist_1794141240559_6cxzg",
+    "tariffId": "bbm-pertalite",
+    "tariffCode": "BBM_PERTALITE",
+    "tariffName": "Pertalite",
+    "category": "BBM",
+    "action": "UPDATE_PRICE",
+    "oldPrice": 10000,
+    "newPrice": 10500,
+    "oldUnit": "Rp/liter",
+    "newUnit": "Rp/liter",
+    "oldValidFrom": "2022-09-03",
+    "newValidFrom": "2022-09-03",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": true,
+    "newIsActive": true,
+    "changedBy": "Superadmin",
+    "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
+    "changedAt": "2026-11-08T12:34:00.559Z"
+  },
+  {
     "id": "hist_reset_pln-900-subsidized",
     "tariffId": "pln-900-subsidized",
     "tariffCode": "PLN_R1_900_SUB",
@@ -18,7 +81,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_pln-900-rtm",
@@ -39,7 +102,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_pln-1300-2200",
@@ -60,7 +123,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_pln-3500-5500",
@@ -81,7 +144,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_spklu-public-fast",
@@ -102,13 +165,13 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_bbm-pertalite",
     "tariffId": "bbm-pertalite",
     "tariffCode": "BBM_PERTALITE",
-    "tariffName": "Pertalite (RON 90 - JBKP Bersubsidi)",
+    "tariffName": "Pertalite",
     "category": "BBM",
     "action": "CREATE",
     "oldPrice": null,
@@ -123,27 +186,90 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
   },
   {
     "id": "hist_reset_bbm-pertamax",
     "tariffId": "bbm-pertamax",
     "tariffCode": "BBM_PERTAMAX",
-    "tariffName": "Pertamax (RON 92 - Non-Subsidi)",
+    "tariffName": "Pertamax",
     "category": "BBM",
     "action": "CREATE",
     "oldPrice": null,
-    "newPrice": 12100,
+    "newPrice": 12500,
     "oldUnit": null,
     "newUnit": "Rp/liter",
     "oldValidFrom": null,
-    "newValidFrom": "2024-11-01",
+    "newValidFrom": "2024-10-01",
     "oldValidTo": null,
     "newValidTo": null,
     "oldIsActive": null,
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-06T06:03:11.217Z"
+    "changedAt": "2026-11-08T12:34:00.556Z"
+  },
+  {
+    "id": "hist_reset_bbm-pertamax-turbo",
+    "tariffId": "bbm-pertamax-turbo",
+    "tariffCode": "BBM_PERTAMAX_TURBO",
+    "tariffName": "Pertamax Turbo",
+    "category": "BBM",
+    "action": "CREATE",
+    "oldPrice": null,
+    "newPrice": 14000,
+    "oldUnit": null,
+    "newUnit": "Rp/liter",
+    "oldValidFrom": null,
+    "newValidFrom": "2024-10-01",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": null,
+    "newIsActive": true,
+    "changedBy": "Sistem (Reset)",
+    "reason": "Reset ke parameter default regulasi resmi",
+    "changedAt": "2026-11-08T12:34:00.556Z"
+  },
+  {
+    "id": "hist_reset_bbm-biosolar",
+    "tariffId": "bbm-biosolar",
+    "tariffCode": "BBM_BIOSOLAR",
+    "tariffName": "Biosolar",
+    "category": "BBM",
+    "action": "CREATE",
+    "oldPrice": null,
+    "newPrice": 6800,
+    "oldUnit": null,
+    "newUnit": "Rp/liter",
+    "oldValidFrom": null,
+    "newValidFrom": "2022-09-03",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": null,
+    "newIsActive": true,
+    "changedBy": "Sistem (Reset)",
+    "reason": "Reset ke parameter default regulasi resmi",
+    "changedAt": "2026-11-08T12:34:00.556Z"
+  },
+  {
+    "id": "hist_reset_bbm-dexlite",
+    "tariffId": "bbm-dexlite",
+    "tariffCode": "BBM_DEXLITE",
+    "tariffName": "Dexlite",
+    "category": "BBM",
+    "action": "CREATE",
+    "oldPrice": null,
+    "newPrice": 13300,
+    "oldUnit": null,
+    "newUnit": "Rp/liter",
+    "oldValidFrom": null,
+    "newValidFrom": "2024-10-01",
+    "oldValidTo": null,
+    "newValidTo": null,
+    "oldIsActive": null,
+    "newIsActive": true,
+    "changedBy": "Sistem (Reset)",
+    "reason": "Reset ke parameter default regulasi resmi",
+    "changedAt": "2026-11-08T12:34:00.556Z"
   }
 ]
