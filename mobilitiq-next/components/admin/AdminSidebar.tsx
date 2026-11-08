@@ -28,6 +28,8 @@ export function AdminSidebar({ onNotify }: AdminSidebarProps) {
     pathname.startsWith("/admin/tarif-energi") ||
     pathname === "/admin";
 
+  const isIncentiveActive = pathname.startsWith("/admin/insentif-pajak");
+
   const renderNavItems = () => (
     <nav className="space-y-1 px-3" aria-label="Menu Superadmin">
       {/* 1. Analitik */}
@@ -57,7 +59,7 @@ export function AdminSidebar({ onNotify }: AdminSidebarProps) {
         <span>Analitik</span>
       </button>
 
-      {/* 2. Tarif Energi (Menu Aktif) */}
+      {/* 2. Tarif Energi */}
       <Link
         href="/admin/parameter-energi"
         onClick={() => setMobileMenuOpen(false)}
@@ -86,17 +88,18 @@ export function AdminSidebar({ onNotify }: AdminSidebarProps) {
         <span>Tarif Energi</span>
       </Link>
 
-      {/* 3. Insentif & Pajak (Persiapan PBI 10) */}
-      <button
-        type="button"
-        onClick={() => {
-          showDevNotice("Insentif & Pajak (PBI 10)");
-          setMobileMenuOpen(false);
-        }}
-        className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+      {/* 3. Insentif & Pajak (PBI 10) */}
+      <Link
+        href="/admin/insentif-pajak"
+        onClick={() => setMobileMenuOpen(false)}
+        className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+          isIncentiveActive
+            ? "bg-blue-50/90 text-blue-700 shadow-2xs font-bold"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        }`}
       >
         <svg
-          className="h-4 w-4 text-slate-400"
+          className={`h-4 w-4 ${isIncentiveActive ? "text-blue-600" : "text-slate-400"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -108,7 +111,7 @@ export function AdminSidebar({ onNotify }: AdminSidebarProps) {
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
         </svg>
         <span>Insentif &amp; Pajak</span>
-      </button>
+      </Link>
 
       {/* 4. Verifikasi Mitra */}
       <button

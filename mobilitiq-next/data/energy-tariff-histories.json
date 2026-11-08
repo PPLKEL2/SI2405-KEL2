@@ -1,27 +1,6 @@
 [
   {
-    "id": "hist_1794141356056_uae6k",
-    "tariffId": "bbm-pertalite",
-    "tariffCode": "BBM_PERTALITE",
-    "tariffName": "Pertalite",
-    "category": "BBM",
-    "action": "UPDATE_PRICE",
-    "oldPrice": 10500,
-    "newPrice": 11000,
-    "oldUnit": "Rp/liter",
-    "newUnit": "Rp/liter",
-    "oldValidFrom": "2022-09-03",
-    "newValidFrom": "2022-09-03",
-    "oldValidTo": null,
-    "newValidTo": null,
-    "oldIsActive": true,
-    "newIsActive": true,
-    "changedBy": "Superadmin",
-    "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
-    "changedAt": "2026-11-08T12:35:56.055Z"
-  },
-  {
-    "id": "hist_1794141240560_xsoea",
+    "id": "hist_1794152719109_81yla",
     "tariffId": "bbm-pertamax",
     "tariffCode": "BBM_PERTAMAX",
     "tariffName": "Pertamax",
@@ -39,10 +18,10 @@
     "newIsActive": true,
     "changedBy": "Superadmin",
     "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
-    "changedAt": "2026-11-08T12:34:00.559Z"
+    "changedAt": "2026-11-08T15:45:19.109Z"
   },
   {
-    "id": "hist_1794141240559_6cxzg",
+    "id": "hist_1794152719109_5w1ue",
     "tariffId": "bbm-pertalite",
     "tariffCode": "BBM_PERTALITE",
     "tariffName": "Pertalite",
@@ -60,7 +39,7 @@
     "newIsActive": true,
     "changedBy": "Superadmin",
     "reason": "Pembaruan tarif dari halaman Manajemen Tarif Energi",
-    "changedAt": "2026-11-08T12:34:00.559Z"
+    "changedAt": "2026-11-08T15:45:19.109Z"
   },
   {
     "id": "hist_reset_pln-900-subsidized",
@@ -81,7 +60,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_pln-900-rtm",
@@ -102,7 +81,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_pln-1300-2200",
@@ -123,7 +102,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_pln-3500-5500",
@@ -144,7 +123,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_spklu-public-fast",
@@ -165,7 +144,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_bbm-pertalite",
@@ -186,7 +165,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_bbm-pertamax",
@@ -207,7 +186,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_bbm-pertamax-turbo",
@@ -228,7 +207,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.105Z"
   },
   {
     "id": "hist_reset_bbm-biosolar",
@@ -249,7 +228,7 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.106Z"
   },
   {
     "id": "hist_reset_bbm-dexlite",
@@ -270,6 +249,6 @@
     "newIsActive": true,
     "changedBy": "Sistem (Reset)",
     "reason": "Reset ke parameter default regulasi resmi",
-    "changedAt": "2026-11-08T12:34:00.556Z"
+    "changedAt": "2026-11-08T15:45:19.106Z"
   }
 ]

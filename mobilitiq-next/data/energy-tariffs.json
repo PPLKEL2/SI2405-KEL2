@@ -84,7 +84,7 @@
     "code": "BBM_PERTALITE",
     "name": "Pertalite",
     "category": "BBM",
-    "pricePerUnit": 11000,
+    "pricePerUnit": 10500,
     "unit": "Rp/liter",
     "validFrom": "2022-09-03",
     "validTo": null,
@@ -92,7 +92,7 @@
     "sourceLabel": "Kepmen ESDM No. 245.K/MG.01/MEM.M/2022",
     "sourceUrl": "https://mypertamina.id/fuels-harga",
     "notes": "Harga resmi BBM penugasan Pertalite.",
-    "updatedAt": "2026-11-08T12:35:56.055Z",
+    "updatedAt": "2026-11-08T15:45:19.109Z",
     "updatedBy": "Superadmin"
   },
   {
@@ -108,7 +108,7 @@
     "sourceLabel": "Penetapan Harga Pertamina Acuan",
     "sourceUrl": "https://mypertamina.id/fuels-harga",
     "notes": "Harga BBM RON 92 acuan.",
-    "updatedAt": "2026-11-08T12:34:00.559Z",
+    "updatedAt": "2026-11-08T15:45:19.109Z",
     "updatedBy": "Superadmin"
   },
   {
