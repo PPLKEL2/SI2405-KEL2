@@ -218,3 +218,123 @@ export const EV_SAMPLE_PRESETS: EvPreset[] = [
     description: "Crossover listrik premium jarak jauh, 14,5 kWh/100 km.",
   },
 ];
+
+export interface IcePreset {
+  id: string;
+  name: string;
+  brand: string;
+  vehicleType: "Motor" | "Mobil";
+  kmPerLiter: number;
+  defaultFuelId: string;
+  description: string;
+}
+
+export interface FuelPriceReference {
+  id: string;
+  name: string;
+  category: "Bensin" | "Diesel";
+  pricePerLiter: number;
+  ronOrCetane: string;
+}
+
+export const FUEL_PRICE_REFERENCES: FuelPriceReference[] = [
+  {
+    id: "pertalite",
+    name: "Pertalite (RON 90)",
+    category: "Bensin",
+    pricePerLiter: 10000,
+    ronOrCetane: "RON 90",
+  },
+  {
+    id: "pertamax",
+    name: "Pertamax (RON 92)",
+    category: "Bensin",
+    pricePerLiter: 12100,
+    ronOrCetane: "RON 92",
+  },
+  {
+    id: "pertamax-turbo",
+    name: "Pertamax Turbo (RON 98)",
+    category: "Bensin",
+    pricePerLiter: 13250,
+    ronOrCetane: "RON 98",
+  },
+  {
+    id: "biosolar",
+    name: "Biosolar (Subsidi)",
+    category: "Diesel",
+    pricePerLiter: 6800,
+    ronOrCetane: "CN 48",
+  },
+  {
+    id: "dexlite",
+    name: "Dexlite (CN 51)",
+    category: "Diesel",
+    pricePerLiter: 13050,
+    ronOrCetane: "CN 51",
+  },
+  {
+    id: "pertamina-dex",
+    name: "Pertamina Dex (CN 53)",
+    category: "Diesel",
+    pricePerLiter: 13400,
+    ronOrCetane: "CN 53",
+  },
+];
+
+export const ICE_SAMPLE_PRESETS: IcePreset[] = [
+  {
+    id: "vario-125",
+    name: "Honda Vario 125",
+    brand: "Honda",
+    vehicleType: "Motor",
+    kmPerLiter: 48,
+    defaultFuelId: "pertalite",
+    description: "Skuter matik harian populer, 48 km/liter",
+  },
+  {
+    id: "nmax-155",
+    name: "Yamaha NMAX 155",
+    brand: "Yamaha",
+    vehicleType: "Motor",
+    kmPerLiter: 40,
+    defaultFuelId: "pertamax",
+    description: "Maxi skuter komuter, 40 km/liter",
+  },
+  {
+    id: "beat",
+    name: "Honda Beat",
+    brand: "Honda",
+    vehicleType: "Motor",
+    kmPerLiter: 60,
+    defaultFuelId: "pertalite",
+    description: "Skuter matik kompak super hemat, 60 km/liter",
+  },
+  {
+    id: "avanza",
+    name: "Toyota Avanza 1.5",
+    brand: "Toyota",
+    vehicleType: "Mobil",
+    kmPerLiter: 13,
+    defaultFuelId: "pertalite",
+    description: "MPV keluarga 7-seater, 13 km/liter",
+  },
+  {
+    id: "brio",
+    name: "Honda Brio",
+    brand: "Honda",
+    vehicleType: "Mobil",
+    kmPerLiter: 15,
+    defaultFuelId: "pertalite",
+    description: "City car hatchback hemat, 15 km/liter",
+  },
+  {
+    id: "xpander",
+    name: "Mitsubishi Xpander",
+    brand: "Mitsubishi",
+    vehicleType: "Mobil",
+    kmPerLiter: 12,
+    defaultFuelId: "pertamax",
+    description: "Crossover MPV modern, 12 km/liter",
+  },
+];

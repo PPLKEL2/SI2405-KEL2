@@ -8,7 +8,7 @@ export function Navbar() {
 
   const navLinks = [
     { label: "Kalkulator", href: "/kalkulator/energi-ev" },
-    { label: "Bandingkan", href: "/kalkulator/energi-ev" },
+    { label: "Bandingkan", href: "/kalkulator/komparasi-biaya" },
     { label: "Peta Fasilitas", href: "#" },
     { label: "Konsultasi", href: "#konsultasi" },
   ];
