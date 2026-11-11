@@ -1,0 +1,606 @@
+/* MobilitiQ - Peta Fasilitas EV & Kalkulator Rute (KEL2-71 & KEL2-70) */
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.city-filters,
+.type-filters {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid #e3e9f2;
+  background: #fff;
+  color: #52617a;
+  border-radius: 20px;
+  padding: 8px 13px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.chip:hover {
+  background: #f8faff;
+}
+
+.chip.selected {
+  border-color: #4774ff;
+  background: #edf3ff;
+  color: #2851d5;
+  font-weight: 700;
+}
+
+/* FORM HITUNG RUTE PERJALANAN */
+.route-panel {
+  background: #fff;
+  border: 1px solid #e7ecf4;
+  border-radius: 14px;
+  padding: 17px;
+  margin: 0 0 16px;
+  box-shadow: 0 3px 14px #1d2d4408;
+}
+
+.route-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.route-panel-heading h2 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  color: #1d2943;
+}
+
+.route-panel-heading p {
+  margin: 0;
+  color: #8795ad;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.route-badge {
+  background: #edf3ff;
+  color: #2851d5;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.route-form {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr auto;
+  align-items: end;
+  gap: 13px;
+}
+
+.route-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: #43516a;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.route-field input,
+.route-field select {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid #e2e8f1;
+  border-radius: 8px;
+  background: #fff;
+  color: #34425b;
+  outline: none;
+  font: inherit;
+  font-size: 10px;
+}
+
+.route-field input[readonly] {
+  background: #f8faff;
+}
+
+.route-field-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 7px;
+  flex-wrap: wrap;
+}
+
+.secondary-btn {
+  border: 1px solid #dfe6f1;
+  background: #fff;
+  color: #52617a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.secondary-btn:hover,
+.secondary-btn.is-picking {
+  border-color: #6b8cff;
+  color: #2851d5;
+  background: #f1f5ff;
+}
+
+.field-help {
+  display: block;
+  margin-top: 6px;
+  color: #98a4b6;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.route-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.route-actions .primary-btn {
+  width: auto;
+  white-space: nowrap;
+  min-height: 36px;
+  padding: 10px 13px;
+}
+
+.route-actions .secondary-btn {
+  min-height: 36px;
+}
+
+.route-actions button:disabled,
+.route-field-actions button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.route-message {
+  margin-top: 13px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.route-message.error {
+  display: block;
+  color: #a33b36;
+  background: #fff0ef;
+  border: 1px solid #ffd8d5;
+}
+
+.route-result {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #dce8ff;
+  border-radius: 10px;
+  background: #f6f9ff;
+}
+
+.route-result-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.route-result-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #e6edff;
+  color: #294bc3;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.route-result-item small {
+  display: block;
+  color: #8492a8;
+  font-size: 9px;
+  margin-bottom: 3px;
+}
+
+.route-result-item strong {
+  color: #1d2943;
+  font-size: 14px;
+}
+
+.route-destination-name {
+  margin: 0 0 0 auto;
+  color: #65738b;
+  font-size: 10px;
+}
+
+/* LAYOUT 2 KOLOM (DAFTAR & PETA BERDAMPINGAN) */
+.map-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 14px;
+  min-height: 570px;
+  align-items: start;
+}
+
+.facility-panel {
+  background: transparent;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 2px 10px;
+}
+
+.panel-top b {
+  font-size: 12px;
+  color: #1d2943;
+}
+
+.panel-top span {
+  font-size: 10px;
+  color: #96a2b5;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5eaf2;
+  border-radius: 9px;
+  background: #fff;
+  outline: none;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.search-input:focus,
+input:focus,
+select:focus {
+  border-color: #6689ff;
+}
+
+.facility-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-height: 570px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.facility-card {
+  background: #fff;
+  border: 1px solid #e6ebf3;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.facility-card:hover,
+.facility-card.active {
+  border-color: #5880ff;
+  box-shadow: 0 3px 12px #244bc314;
+}
+
+.facility-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.type-tag {
+  display: inline-block;
+  background: #edf3ff;
+  color: #3157d0;
+  border-radius: 15px;
+  padding: 4px 9px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.type-tag.spbklu {
+  background: #eef2ff;
+  color: #5364bc;
+}
+
+.type-tag.showroom {
+  background: #f0f3f7;
+  color: #718096;
+}
+
+.distance {
+  font-size: 10px;
+  color: #35445d;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.facility-card h3 {
+  font-size: 11px;
+  margin: 0 0 5px;
+  color: #1d2943;
+}
+
+.facility-card p {
+  font-size: 10px;
+  color: #8996aa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.empty-state {
+  padding: 25px;
+  text-align: center;
+  color: #8996aa;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e6ebf3;
+  font-size: 11px;
+}
+
+/* PETA DIGITAL */
+.map-wrap {
+  position: relative;
+  height: 570px;
+  min-height: 570px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #eaf0f3;
+  border: 1px solid #e5eaf0;
+}
+
+.map-container {
+  height: 100%;
+  min-height: 570px;
+  width: 100%;
+  z-index: 1;
+}
+
+.map-legend {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 500;
+  background: #fff;
+  padding: 10px 13px;
+  border-radius: 20px;
+  display: flex;
+  gap: 13px;
+  box-shadow: 0 2px 12px #1e2e4515;
+  font-size: 9px;
+  color: #64728a;
+}
+
+.map-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.spklu {
+  background: #294bc3;
+}
+
+.dot.spbklu {
+  background: #2bb5db;
+}
+
+.dot.showroom {
+  background: #7b8ca6;
+}
+
+.map-note {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 400;
+  background: #ffffffd9;
+  padding: 7px 12px;
+  border-radius: 20px;
+  color: #7b8aa1;
+  font-size: 9px;
+}
+
+/* DETAIL FASILITAS */
+.detail-card {
+  position: absolute;
+  z-index: 600;
+  right: 14px;
+  bottom: 48px;
+  width: 260px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 13px;
+  box-shadow: 0 5px 25px #1d2d4430;
+}
+
+.detail-card h3 {
+  font-size: 13px;
+  margin: 9px 0 5px;
+  color: #1d2943;
+}
+
+.detail-address {
+  font-size: 10px;
+  color: #8795aa;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.close-detail {
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  border: 0;
+  background: #f0f3f7;
+  border-radius: 50%;
+  width: 23px;
+  height: 23px;
+  cursor: pointer;
+  color: #66748a;
+  display: grid;
+  place-items: center;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+
+.detail-grid small {
+  display: block;
+  color: #97a3b5;
+  font-size: 9px;
+  margin-bottom: 5px;
+}
+
+.detail-grid b {
+  font-size: 10px;
+  color: #1d2943;
+}
+
+.primary-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  border: 0;
+  background: #2e55d4;
+  color: #fff;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: .15s;
+}
+
+.primary-btn:hover {
+  background: #2145bc;
+}
+
+/* STATUS FASILITAS */
+.status-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-active {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.status-inactive {
+  color: #6b7280;
+  background: #e5e7eb;
+}
+
+/* RESPONSIVE TABLET */
+@media (max-width: 1050px) {
+  .map-layout {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  .route-form {
+    grid-template-columns: 1fr 1fr;
+  }
+  .route-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 720px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .facility-panel {
+    order: 2;
+  }
+
+  .map-wrap {
+    order: 1;
+    height: 390px;
+    min-height: 390px;
+  }
+
+  .map-container {
+    min-height: 390px;
+  }
+
+  .map-legend {
+    left: 8px;
+    right: auto;
+    gap: 7px;
+    padding: 8px;
+    font-size: 8px;
+  }
+
+  .detail-card {
+    right: 8px;
+    bottom: 8px;
+    width: min(260px, calc(100% - 16px));
+  }
+
+  .route-panel {
+    padding: 13px;
+  }
+  .route-panel-heading {
+    flex-direction: column;
+  }
+  .route-form {
+    grid-template-columns: 1fr;
+  }
+  .route-actions {
+    grid-column: auto;
+  }
+  .route-actions .primary-btn {
+    flex: 1;
+  }
+  .route-result {
+    gap: 14px;
+  }
+  .route-destination-name {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}
+

@@ -84,7 +84,7 @@ export async function calculateDrivingRoute(
         Accept: "application/json",
       },
     });
-  } catch (err) {
+  } catch {
     throw new RoutingError(
       "Gagal terhubung ke layanan rute. Periksa koneksi internet Anda lalu coba lagi.",
       "NETWORK_ERROR"

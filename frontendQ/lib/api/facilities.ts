@@ -10,6 +10,7 @@ import type { Facility, FacilityCategory } from "../data/facilities.ts";
 import { getActiveFacilities } from "../data/facilities.ts";
 import {
   calculateDrivingRoute as clientCalculateDrivingRoute,
+  RoutingError,
   type LatLng,
   type RouteResult,
 } from "../routing.ts";
@@ -96,9 +97,18 @@ export async function fetchDrivingRoute(
       if (json.success && json.data) {
         return json.data;
       }
+    } else {
+      // Periksa apakah server backend mengembalikan kode error spesifik (misal NO_ROUTE atau BAD_REQUEST)
+      const errorJson = await res.json().catch(() => null);
+      if (errorJson && errorJson.error && (res.status === 400 || res.status === 404)) {
+        throw new RoutingError(errorJson.error, errorJson.code || "NO_ROUTE");
+      }
     }
-  } catch {
-    // Jika backend offline, hitung langsung via OSRM publik di sisi klien
+  } catch (err) {
+    if (err instanceof RoutingError) {
+      throw err;
+    }
+    // Jika backend offline atau error server 5xx, coba fallback ke OSRM publik di sisi klien
   }
 
   return await clientCalculateDrivingRoute(origin, destination, destinationName);

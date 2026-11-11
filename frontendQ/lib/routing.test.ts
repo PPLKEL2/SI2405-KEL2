@@ -32,7 +32,7 @@ test("calculateDrivingRoute: menolak koordinat tidak valid dengan RoutingError",
         "Fasilitas Test"
       );
     },
-    (err: any) => {
+    (err: unknown) => {
       assert.ok(err instanceof RoutingError);
       assert.ok(err.message.includes("tidak valid"));
       return true;

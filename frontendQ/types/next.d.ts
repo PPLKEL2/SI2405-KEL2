@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type */
 declare module "next" {
   export type Metadata = {
     title?: string;
@@ -25,4 +26,3 @@ declare module "next/dynamic" {
     }
   ): React.ComponentType<P>;
 }
-
