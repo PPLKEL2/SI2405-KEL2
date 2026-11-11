@@ -7,15 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/calculations/*.test.ts"
+    "test": "node --experimental-strip-types --test lib/calculations/*.test.ts lib/*.test.ts lib/data/*.test.ts"
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
     "next": "16.4.4",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
     "@tailwindcss/turbopack": "^4",
+    "@types/leaflet": "^1.9.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

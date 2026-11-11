@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import { calculatorRouter } from "./routes/calculator.js";
+import { facilitiesRouter } from "./routes/facilities.js";
 
 export const app = express();
 
@@ -38,8 +39,9 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 
-// Route API v1 kalkulator
+// Route API v1
 app.use("/api/v1", calculatorRouter);
+app.use("/api/v1", facilitiesRouter);
 
 // Central error handler
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {

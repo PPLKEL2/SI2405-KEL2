@@ -7,7 +7,7 @@ export function Footer() {
       links: [
         { label: "Kalkulator Biaya", href: "/kalkulator/energi-ev" },
         { label: "Katalog EV", href: "/kalkulator/energi-ev" },
-        { label: "Peta Fasilitas", href: "#" },
+        { label: "Peta Fasilitas", href: "/fasilitas/peta" },
       ],
     },
     {
