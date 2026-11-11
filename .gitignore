@@ -3,6 +3,8 @@ node_modules/
 client/node_modules/
 server/node_modules/
 mobilitiq-next/node_modules/
+backendQ/node_modules/
+frontendQ/node_modules/
 
 # Production builds & caches
 client/.vite/
@@ -12,12 +14,20 @@ shared/dist/
 mobilitiq-next/.next/
 mobilitiq-next/out/
 mobilitiq-next/build/
+backendQ/dist/
+frontendQ/.next/
+frontendQ/out/
+frontendQ/build/
 
 # Environment files
 .env
 .env*.local
 server/.env
 server/.env*.local
+backendQ/.env
+backendQ/.env*.local
+frontendQ/.env
+frontendQ/.env*.local
 
 # IDE & OS
 .vscode/

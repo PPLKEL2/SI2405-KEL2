@@ -1,11 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
-import { calculateComparison } from "@/lib/calculations/comparison";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  calculateComparison,
+  type ComparisonCalculationOutput,
+  type ComparisonCalculationInput,
+} from "@/lib/calculations/comparison";
+import type { ValidationErrors } from "@/lib/calculations/ev";
+import { fetchComparisonCalculation } from "@/lib/api/calculator";
 import {
   EV_SAMPLE_PRESETS,
   ICE_SAMPLE_PRESETS,
   FUEL_PRICE_REFERENCES,
+  FUEL_METADATA,
   PLN_TARIFF_REFERENCES,
   type EvPreset,
   type IcePreset,
@@ -30,6 +37,11 @@ export function ComparisonForm() {
   const [homeTariff, setHomeTariff] = useState<number>(1444.7);
   const [spkluTariff, setSpkluTariff] = useState<number>(2466);
   const [showAdvancedTariff, setShowAdvancedTariff] = useState<boolean>(false);
+
+  // Status perhitungan backend dan proteksi race condition
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
+  const requestSeqRef = useRef<number>(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Resolusi data BBM
   const currentIce: IcePreset | undefined = ICE_SAMPLE_PRESETS.find(
@@ -63,19 +75,113 @@ export function ComparisonForm() {
       ? currentEv.consumptionKwh100km
       : 3.2;
 
-  // Jalankan perhitungan komparasi murni KEL2-73
-  const calcResult = calculateComparison({
-    dailyDistanceKm,
-    iceKmPerLiter: effectiveIceKmL,
-    fuelPricePerLiter: effectiveFuelPrice,
-    evConsumptionKwh100km: effectiveEvConsumption,
-    homeTariffPerKwh: homeTariff,
-    spkluTariffPerKwh: spkluTariff,
-    homeChargingPercentage: homeChargingPct,
+  // Inisialisasi hasil kalkulasi (fallback awal untuk hidrasi SSR)
+  const [comparisonData, setComparisonData] = useState<ComparisonCalculationOutput | null>(() => {
+    const initRes = calculateComparison({
+      dailyDistanceKm: 60,
+      iceKmPerLiter: 48,
+      fuelPricePerLiter: 10000,
+      evConsumptionKwh100km: 3.2,
+      homeTariffPerKwh: 1444.7,
+      spkluTariffPerKwh: 2466,
+      homeChargingPercentage: 85,
+    });
+    return initRes.ok ? initRes.data : null;
   });
 
-  const comparisonData = calcResult.ok ? calcResult.data : null;
-  const validationErrors = !calcResult.ok ? calcResult.errors : {};
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors<ComparisonCalculationInput>>({});
+
+  // Debounced API fetcher (200ms) dengan AbortController dan sequence protection
+  useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    requestSeqRef.current += 1;
+    const currentSeq = requestSeqRef.current;
+
+    const timer = setTimeout(async () => {
+      setIsCalculating(true);
+      try {
+        const res = await fetchComparisonCalculation(
+          {
+            dailyDistanceKm,
+            iceKmPerLiter: effectiveIceKmL,
+            fuelPricePerLiter: effectiveFuelPrice,
+            evConsumptionKwh100km: effectiveEvConsumption,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+            homeChargingPercentage: homeChargingPct,
+          },
+          abortController.signal
+        );
+
+        if (currentSeq !== requestSeqRef.current) return;
+
+        if (res.success && res.data) {
+          setComparisonData(res.data);
+          setValidationErrors({});
+        } else {
+          // Fallback lokal jika backend mengembalikan error
+          const fallback = calculateComparison({
+            dailyDistanceKm,
+            iceKmPerLiter: effectiveIceKmL,
+            fuelPricePerLiter: effectiveFuelPrice,
+            evConsumptionKwh100km: effectiveEvConsumption,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+            homeChargingPercentage: homeChargingPct,
+          });
+          if (fallback.ok) {
+            setComparisonData(fallback.data);
+            setValidationErrors({});
+          } else {
+            setValidationErrors(fallback.errors);
+          }
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") {
+          return;
+        }
+        if (currentSeq === requestSeqRef.current) {
+          const fallback = calculateComparison({
+            dailyDistanceKm,
+            iceKmPerLiter: effectiveIceKmL,
+            fuelPricePerLiter: effectiveFuelPrice,
+            evConsumptionKwh100km: effectiveEvConsumption,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+            homeChargingPercentage: homeChargingPct,
+          });
+          if (fallback.ok) {
+            setComparisonData(fallback.data);
+            setValidationErrors({});
+          } else {
+            setValidationErrors(fallback.errors);
+          }
+        }
+      } finally {
+        if (currentSeq === requestSeqRef.current) {
+          setIsCalculating(false);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      abortController.abort();
+    };
+  }, [
+    dailyDistanceKm,
+    effectiveIceKmL,
+    effectiveFuelPrice,
+    effectiveEvConsumption,
+    homeTariff,
+    spkluTariff,
+    homeChargingPct,
+  ]);
 
   // Formula posisi fill track slider deklaratif dengan offset center thumb 22px
   const distRatio = Math.min(1, Math.max(0, (dailyDistanceKm - 5) / (150 - 5)));
@@ -272,6 +378,9 @@ export function ComparisonForm() {
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </div>
+              <p className="mt-1 text-[11px] text-mute">
+                Sumber: {FUEL_METADATA.source} ({FUEL_METADATA.lastUpdated})
+              </p>
             </label>
 
             {selectedFuelId === "custom" && (
@@ -487,13 +596,21 @@ export function ComparisonForm() {
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-mute">
-                {comparisonData.status === "SAVING"
-                  ? "Hasil Komparasi: Penghematan Energi"
-                  : comparisonData.status === "ADDITIONAL_COST"
-                  ? "Hasil Komparasi: Biaya Tambahan Energi"
-                  : "Hasil Komparasi: Biaya Energi Setara"}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-mute">
+                  {comparisonData.status === "SAVING"
+                    ? "Hasil Komparasi: Penghematan Energi"
+                    : comparisonData.status === "ADDITIONAL_COST"
+                    ? "Hasil Komparasi: Biaya Tambahan Energi"
+                    : "Hasil Komparasi: Biaya Energi Setara"}
+                </span>
+                {isCalculating && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-tint px-2 py-0.5 text-[10px] font-semibold text-brand animate-pulse">
+                    <span className="h-1.5 w-1.5 rounded-full bg-electric animate-ping" />
+                    Menghitung...
+                  </span>
+                )}
+              </div>
 
               {comparisonData.status === "SAVING" && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-ok px-3 py-1 text-xs font-extrabold text-white">

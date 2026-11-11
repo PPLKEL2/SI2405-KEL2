@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { calculateEvEnergy } from "@/lib/calculations/ev";
+import React, { useState, useEffect, useRef } from "react";
+import { calculateEvEnergy, type EvCalculationOutput } from "@/lib/calculations/ev";
+import { fetchEvEnergyCalculation } from "@/lib/api/calculator";
 import {
   EV_SAMPLE_PRESETS,
   PLN_TARIFF_REFERENCES,
@@ -34,6 +35,11 @@ export function EvCalculatorForm() {
   const [spkluTariff, setSpkluTariff] = useState<number>(2466);
   const [showAdvancedTariff, setShowAdvancedTariff] = useState<boolean>(false);
 
+  // Status perhitungan backend dan proteksi race condition
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
+  const requestSeqRef = useRef<number>(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // Ambil data preset aktif
   const currentPreset: EvPreset | undefined = EV_SAMPLE_PRESETS.find(
     (p) => p.id === selectedPresetId
@@ -46,16 +52,90 @@ export function EvCalculatorForm() {
       ? currentPreset.consumptionKwh100km
       : 3.2;
 
-  // Jalankan fungsi perhitungan resmi KEL2-67
-  const calcResult = calculateEvEnergy({
-    consumptionKwh100km: effectiveConsumption,
-    dailyDistanceKm: dailyDistanceKm,
-    homeChargingPercentage: homeChargingPct,
-    homeTariffPerKwh: homeTariff,
-    spkluTariffPerKwh: spkluTariff,
+  // Inisialisasi hasil kalkulasi (fallback awal untuk hidrasi SSR)
+  const [calculationData, setCalculationData] = useState<EvCalculationOutput | null>(() => {
+    const initRes = calculateEvEnergy({
+      consumptionKwh100km: 3.2,
+      dailyDistanceKm: 60,
+      homeChargingPercentage: 85,
+      homeTariffPerKwh: 1444.7,
+      spkluTariffPerKwh: 2466,
+    });
+    return initRes.ok ? initRes.data : null;
   });
 
-  const calculationData = calcResult.ok ? calcResult.data : null;
+  // Debounced API fetcher (200ms) dengan AbortController dan sequence protection
+  useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    requestSeqRef.current += 1;
+    const currentSeq = requestSeqRef.current;
+
+    const timer = setTimeout(async () => {
+      setIsCalculating(true);
+      try {
+        const res = await fetchEvEnergyCalculation(
+          {
+            consumptionKwh100km: effectiveConsumption,
+            dailyDistanceKm,
+            homeChargingPercentage: homeChargingPct,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+          },
+          abortController.signal
+        );
+
+        if (currentSeq !== requestSeqRef.current) return;
+
+        if (res.success && res.data) {
+          setCalculationData(res.data);
+        } else {
+          // Fallback lokal jika terjadi kendala backend
+          const fallback = calculateEvEnergy({
+            consumptionKwh100km: effectiveConsumption,
+            dailyDistanceKm,
+            homeChargingPercentage: homeChargingPct,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+          });
+          if (fallback.ok) setCalculationData(fallback.data);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") {
+          return;
+        }
+        if (currentSeq === requestSeqRef.current) {
+          const fallback = calculateEvEnergy({
+            consumptionKwh100km: effectiveConsumption,
+            dailyDistanceKm,
+            homeChargingPercentage: homeChargingPct,
+            homeTariffPerKwh: homeTariff,
+            spkluTariffPerKwh: spkluTariff,
+          });
+          if (fallback.ok) setCalculationData(fallback.data);
+        }
+      } finally {
+        if (currentSeq === requestSeqRef.current) {
+          setIsCalculating(false);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      abortController.abort();
+    };
+  }, [
+    effectiveConsumption,
+    dailyDistanceKm,
+    homeChargingPct,
+    homeTariff,
+    spkluTariff,
+  ]);
 
   // Benchmark kendaraan BBM pembanding (persis model Figma)
   const isMotor = currentPreset
@@ -279,9 +359,17 @@ export function EvCalculatorForm() {
           {/* Kartu 1: Konsumsi energi */}
           <div className="rounded-2xl border border-line bg-white p-5 shadow-sm flex flex-col justify-between gap-4">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[13px] font-medium text-mute">
-                Konsumsi energi
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-mute">
+                  Konsumsi energi
+                </span>
+                {isCalculating && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-tint px-2 py-0.5 text-[10px] font-semibold text-brand animate-pulse">
+                    <span className="h-1.5 w-1.5 rounded-full bg-electric animate-ping" />
+                    Menghitung...
+                  </span>
+                )}
+              </div>
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-tint text-electric">
                 <svg
                   width="18"

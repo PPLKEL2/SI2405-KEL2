@@ -237,6 +237,13 @@ export interface FuelPriceReference {
   ronOrCetane: string;
 }
 
+export const FUEL_METADATA = {
+  source: "Keputusan Menteri ESDM / Pengumuman Resmi Penyesuaian Harga Pertamina",
+  lastUpdated: "1 November 2026",
+  isStaticReference: true,
+  note: "Data harga bahan bakar bersifat acuan standar regulasi terbaru per 1 November 2026 (bukan scraping real-time).",
+};
+
 export const FUEL_PRICE_REFERENCES: FuelPriceReference[] = [
   {
     id: "pertalite",
