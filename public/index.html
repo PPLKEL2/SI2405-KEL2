@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MobilitiQ — Fasilitas & Tarif EV</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>MobilitiQ</h1>
+    <nav>
+      <button class="tab-btn active" data-tab="fasilitas">Fasilitas EV (PBI 5)</button>
+      <button class="tab-btn" data-tab="tarif">Tarif Layanan (PBI 6)</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- PBI 5 -->
+    <section id="fasilitas" class="tab-panel active">
+      <div class="grid">
+        <div class="card">
+          <h2 id="facility-title">Tambah fasilitas</h2>
+          <form id="facility-form">
+            <input type="hidden" name="id" id="facility-id">
+            <label>Nama <input name="nama" required></label>
+            <label>Kategori
+              <select name="kategori" required>
+                <option value="Showroom">Showroom</option>
+                <option value="SPKLU">SPKLU</option>
+                <option value="SPBKLU">SPBKLU</option>
+              </select>
+            </label>
+            <label>Alamat <textarea name="alamat" required rows="2"></textarea></label>
+            <div class="row">
+              <label>Latitude <input name="latitude" type="number" step="any" required></label>
+              <label>Longitude <input name="longitude" type="number" step="any" required></label>
+            </div>
+            <label>Jam operasional <input name="jamOperasional"></label>
+            <label>Kontak <input name="kontak"></label>
+            <div class="actions">
+              <button type="submit" id="facility-submit">Simpan fasilitas</button>
+              <button type="button" id="facility-cancel" class="secondary">Batal</button>
+            </div>
+            <p id="facility-message" class="message"></p>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Peta fasilitas</h2>
+            <div class="legend">
+              <span><i style="background:#2563eb"></i>Showroom</span>
+              <span><i style="background:#16a34a"></i>SPKLU</span>
+              <span><i style="background:#ea580c"></i>SPBKLU</span>
+            </div>
+          </div>
+          <div id="map"></div>
+          <p class="hint">Peta hanya menampilkan fasilitas yang aktif.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Daftar fasilitas</h2>
+          <label class="inline">Filter kategori
+            <select id="filter-kategori">
+              <option value="">Semua</option>
+              <option value="Showroom">Showroom</option>
+              <option value="SPKLU">SPKLU</option>
+              <option value="SPBKLU">SPBKLU</option>
+            </select>
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nama</th><th>Kategori</th><th>Alamat</th><th>Koordinat</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody id="facility-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PBI 6 -->
+    <section id="tarif" class="tab-panel">
+      <div class="grid">
+        <div class="card">
+          <h2 id="tarif-title">Tambah tarif</h2>
+          <form id="tarif-form">
+            <input type="hidden" name="id" id="tarif-id">
+            <label>Fasilitas <select name="facilityId" id="tarif-facility" required></select></label>
+            <label>Jenis layanan
+              <select name="jenisLayanan" id="tarif-jenis" required>
+                <option value="CHARGING">Charging (per kWh)</option>
+                <option value="SWAP">Swap baterai (per transaksi)</option>
+              </select>
+            </label>
+            <label><span id="tarif-nilai-label">Nilai (Rp per kWh)</span> <input name="nilai" type="number" min="0" step="any" required></label>
+            <div class="row">
+              <label>Berlaku mulai <input name="berlakuMulai" type="date" required></label>
+              <label>Berlaku sampai <input name="berlakuSampai" type="date"></label>
+            </div>
+            <p class="hint">Kosongkan "berlaku sampai" jika tarif berlaku terus.</p>
+            <div class="actions">
+              <button type="submit" id="tarif-submit">Simpan tarif</button>
+              <button type="button" id="tarif-cancel" class="secondary">Batal</button>
+            </div>
+            <p id="tarif-message" class="message"></p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Cek tarif aktif</h2>
+          <p class="hint">Sama dengan yang dibaca modul simulasi lewat <code>/api/tarif/aktif</code>.</p>
+          <form id="cek-form">
+            <label>Fasilitas <select name="facilityId" id="cek-facility" required></select></label>
+            <label>Jenis layanan
+              <select name="jenisLayanan" required>
+                <option value="CHARGING">Charging (per kWh)</option>
+                <option value="SWAP">Swap baterai (per transaksi)</option>
+              </select>
+            </label>
+            <label>Tanggal <input name="tanggal" type="date" id="cek-tanggal" required></label>
+            <div class="actions"><button type="submit">Cek</button></div>
+          </form>
+          <p id="cek-result" class="message"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Daftar tarif</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Fasilitas</th><th>Jenis</th><th>Nilai</th><th>Periode berlaku</th><th></th></tr>
+            </thead>
+            <tbody id="tarif-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
