@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MobilitiQ – Katalog EV Mitra</title>
+<style>
+  :root{--bg:#f8fafc;--card:#fff;--tx:#14213d;--mut:#8592a6;--bd:#e8ecf2;--pri:#2f5bff;--soft:#eaf1ff}
+  *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:13px}
+  .app{display:flex;min-height:100vh}
+  aside{width:200px;background:var(--card);border-right:1px solid var(--bd);padding:16px 12px;flex-shrink:0}
+  .brand{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+  .brand b{color:var(--pri);font-size:15px} .tag{background:#eef1f6;color:var(--mut);font-size:9px;padding:4px 18px;border-radius:99px;letter-spacing:.08em}
+  .sec{font-size:9px;color:var(--mut);letter-spacing:.08em;margin:0 8px 8px}
+  nav a{display:block;padding:9px 12px;border-radius:8px;color:#4a5568;text-decoration:none;margin-bottom:4px}
+  nav a.act{background:var(--soft);color:var(--pri);font-weight:600} nav a.dis{opacity:.55;cursor:default}
+  nav hr{border:0;margin:20px 0}
+  main{flex:1;padding:36px 32px;max-width:1000px}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+  h1{margin:0 0 4px;font-size:22px} .sub{color:var(--mut)}
+  .btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:600 12px inherit;font-family:inherit;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--tx);border:1px solid var(--bd)}
+  .tbl{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  th{color:var(--mut);font-weight:500;font-size:10px;text-transform:uppercase;text-align:left;padding:14px 12px;letter-spacing:.04em}
+  td{padding:15px 12px;border-top:1px solid var(--bd);white-space:nowrap}
+  td:first-child,th:first-child{padding-left:18px} td.m{font-weight:700}
+  .pill{font-size:10px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--soft);color:var(--pri)}
+  .pill.on{background:#e3f7ec;color:#16a34a} .pill.off{background:#fde8e8;color:#dc2626}
+  .ic{background:none;border:0;cursor:pointer;color:var(--pri);padding:4px}
+  .pill.st{cursor:pointer}
+  .empty{padding:36px;text-align:center;color:var(--mut)}
+  dialog{border:0;border-radius:16px;padding:0;width:min(480px,94vw);color:var(--tx)}
+  dialog::backdrop{background:#0f172a66}
+  .hd{padding:18px 22px;font-weight:700;font-size:15px;border-bottom:1px solid var(--bd)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px 22px}
+  label{display:block;font-size:11px;color:var(--mut);margin-bottom:4px} .full{grid-column:1/-1}
+  input,select{width:100%;padding:9px 11px;border:1px solid var(--bd);border-radius:8px;font:inherit;background:#fff;color:var(--tx)}
+  .ft{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--bd)}
+  .err{color:#dc2626;padding:0 22px 4px;font-size:12px}
+  @media(max-width:700px){aside{display:none}main{padding:20px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><b>MobilitiQ</b><span class="tag">MITRA</span></div>
+    <div class="sec">PORTAL MITRA</div>
+    <nav>
+      <a class="dis">Dashboard</a>
+      <a class="act">Katalog EV</a>
+      <a class="dis">Showroom &amp; Fasilitas</a>
+      <a class="dis">Harga Layanan</a>
+      <hr>
+      <a class="dis">↪ Keluar</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="head">
+      <div><h1>Manajemen Katalog EV</h1><div class="sub" id="count"></div></div>
+      <button class="btn" id="add">+ Tambah Unit</button>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Model</th><th>Tipe</th><th>Baterai</th><th>Harga OTR</th><th>Charger AC</th><th>Promo</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden>Belum ada unit di katalog.</div>
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg"><form id="f" novalidate>
+  <div class="hd" id="ttl">Tambah Unit</div>
+  <div class="grid">
+    <div class="full"><label>Model *</label><input name="model" placeholder="mis. Polytron Fox-R"></div>
+    <div><label>Tipe *</label><select name="tipe"><option>Motor</option><option>Mobil</option></select></div>
+    <div><label>Status</label><select name="aktif"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+    <div><label>Baterai (kWh) *</label><input name="baterai_kwh" type="number" step="0.1" min="0"></div>
+    <div><label>Charger AC (kW) *</label><input name="charger_ac_kw" type="number" step="0.1" min="0"></div>
+    <div class="full"><label>Harga OTR (Rp) *</label><input name="harga_otr" type="number" min="0"></div>
+    <div class="full"><label>Promo</label><input name="promo" placeholder="mis. Gratis wallbox (kosongkan bila tidak ada)"></div>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="ft"><button type="button" class="btn ghost" id="cancel">Batal</button><button type="submit" class="btn">Simpan</button></div>
+</form></dialog>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const rp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+const dec = (n) => String(n).replace(".", ",");
+let editId = null, cache = [];
+
+const PENCIL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
+const TRASH = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+
+async function api(url, opt = {}) {
+  const r = await fetch(url, { headers: { "Content-Type": "application/json" }, ...opt });
+  if (r.status === 204) return null;
+  const d = await r.json();
+  if (!r.ok) throw d;
+  return d;
+}
+
+async function load() {
+  cache = await api("/api/vehicles");
+  $("#count").textContent = `${cache.length} unit di katalog Anda.`;
+  $("#empty").hidden = cache.length > 0;
+  $("#rows").innerHTML = cache.map((v) => `
+    <tr>
+      <td class="m">${esc(v.model)}</td>
+      <td><span class="pill">${esc(v.tipe)}</span></td>
+      <td>${dec(v.baterai_kwh)} kWh</td>
+      <td>${rp(v.harga_otr)}</td>
+      <td>${dec(v.charger_ac_kw)} kW</td>
+      <td>${v.promo ? esc(v.promo) : "—"}</td>
+      <td><span class="pill st ${v.aktif ? "on" : "off"}" title="Klik untuk ubah status" onclick="toggle('${v.id}',${!v.aktif})">${v.aktif ? "Aktif" : "Nonaktif"}</span></td>
+      <td><button class="ic" title="Ubah" onclick="edit('${v.id}')">${PENCIL}</button><button class="ic" title="Hapus" onclick="del('${v.id}')">${TRASH}</button></td>
+    </tr>`).join("");
+}
+
+function openForm(v) {
+  $("#f").reset(); $("#err").textContent = "";
+  editId = v ? v.id : null;
+  $("#ttl").textContent = v ? "Ubah Unit" : "Tambah Unit";
+  if (v) for (const [k, val] of Object.entries(v)) { const el = $("#f").elements[k]; if (el) el.value = val; }
+  $("#dlg").showModal();
+}
+function edit(id) { openForm(cache.find((v) => v.id === id)); }
+async function del(id) {
+  const v = cache.find((x) => x.id === id);
+  if (confirm(`Hapus "${v.model}" dari katalog?`)) { await api("/api/vehicles/" + id, { method: "DELETE" }); load(); }
+}
+
+async function toggle(id, aktif) {
+  try { await api(`/api/vehicles/${id}/status`, { method: "PATCH", body: JSON.stringify({ aktif }) }); load(); }
+  catch (er) { alert((er.errors || [er.error || "Gagal mengubah status"]).join(", ")); }
+}
+function checkForm(b) {
+  const e = [];
+  if (!b.model.trim()) e.push("Model wajib diisi");
+  for (const [k, l, min, max] of [["baterai_kwh", "Baterai", 0.1, 500], ["charger_ac_kw", "Charger AC", 0.1, 350], ["harga_otr", "Harga OTR", 1000000, 5000000000]]) {
+    const v = Number(b[k]);
+    if (b[k] === "" || Number.isNaN(v)) e.push(`${l} wajib diisi dengan angka`);
+    else if (v < min || v > max) e.push(`${l} harus antara ${min} dan ${max}`);
+  }
+  return e;
+}
+
+$("#f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData($("#f")));
+  const bad = checkForm(body);
+  if (bad.length) { $("#err").textContent = bad.join(", "); return; }
+  try {
+    await api(editId ? "/api/vehicles/" + editId : "/api/vehicles", { method: editId ? "PUT" : "POST", body: JSON.stringify(body) });
+    $("#dlg").close(); load();
+  } catch (er) { $("#err").textContent = (er.errors || [er.error || "Terjadi kesalahan"]).join(", "); }
+});
+$("#add").onclick = () => openForm();
+$("#cancel").onclick = () => $("#dlg").close();
+load();
+</script>
+</body>
+</html>
