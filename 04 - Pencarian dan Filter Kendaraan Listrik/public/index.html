@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalog & Pencarian EV - MobilitiQ</title>
+<style>
+:root{color-scheme:light;--bg:#f6f7fb;--card:#fff;--ink:#12151f;--mute:#6b7280;--line:#e5e7ee;--blue:#2f5bea;--blue-soft:#e8eeff;--green:#0f7a4f;--green-soft:#e3f6ec}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{height:56px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--blue)}
+.user{display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.user small{display:block;color:var(--mute);font-size:10px}
+.user b{font-size:12px}
+.shell{display:flex;align-items:flex-start}
+nav{width:236px;flex:none;background:var(--card);border-right:1px solid var(--line);padding:16px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--mute);text-decoration:none;font-size:13px;margin-bottom:2px}
+nav a:hover{background:var(--bg)}
+nav a.active{background:var(--blue-soft);color:var(--blue);font-weight:600}
+@media(max-width:860px){nav{display:none}}
+main{flex:1;min-width:0;max-width:1040px;margin:0 auto;padding:32px 24px 110px}
+h1{font-size:20px;margin:0}
+.sub{color:var(--mute);font-size:12px;margin:4px 0 20px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;grid-template-columns:1.2fr 1.6fr 1fr;gap:24px}
+@media(max-width:760px){.panel{grid-template-columns:1fr}.chips{grid-column:1/-1}}
+label,.lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:8px}
+.lbl a,.lbl output{color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none}
+input[type=search],select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+input[type=range]{width:100%;accent-color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.chips{grid-column:1/3;display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:12px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--blue-soft);border-color:var(--blue);color:var(--blue);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.sel{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--mute);font-size:12px}
+.tag{background:var(--blue-soft);color:var(--blue);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600}
+.name{font-size:17px;font-weight:700;margin:0}
+.price{font-size:22px;font-weight:700;margin:2px 0}
+.specs{display:flex;gap:22px}
+.specs b{display:block;font-size:15px}.specs span{font-size:11px;color:var(--mute)}
+.promo{align-self:flex-start;background:var(--green-soft);color:var(--green);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600}
+.acts{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:8px}
+.btn{flex:1;padding:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--blue)}
+.card.sel .btn{background:var(--blue);color:#fff;border-color:var(--blue)}
+.link{background:none;border:0;color:var(--blue);font:inherit;font-size:12px;cursor:pointer}
+.empty{grid-column:1/-1;text-align:center;padding:48px 16px;background:var(--card);border:1px dashed var(--line);border-radius:12px;color:var(--mute)}
+.empty button{margin-top:12px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 20px;display:flex;gap:12px;align-items:center;justify-content:center}
+.bar[hidden]{display:none}
+.bar .go{background:var(--blue);color:#fff;border:0;border-radius:8px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);max-width:min(720px,92vw);width:100%;padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th:first-child{color:var(--mute);font-weight:500}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="dot"></span>MobilitiQ</div>
+  <div class="user"><span class="avatar">RA</span><div><b>Rina Anggraini</b><small>Jakarta · 1.300 VA</small></div></div>
+</header>
+<div class="shell">
+  <nav aria-label="Menu utama">
+    <a href="#">Ringkasan</a>
+    <a href="#">Biaya BBM</a>
+    <a href="#">Energi EV</a>
+    <a href="#" class="active" aria-current="page">Katalog EV</a>
+    <a href="#">Bandingkan</a>
+    <a href="#">Pembelian</a>
+    <a href="#">Degradasi</a>
+    <a href="#">Sinking Fund</a>
+    <a href="#">Daya Rumah</a>
+    <a href="#">Jarak Tempuh</a>
+    <a href="#">TCO &amp; Payback</a>
+    <a href="#">Emisi</a>
+    <a href="#">Peta</a>
+    <a href="#">Laporan PDF</a>
+    <a href="#">Riwayat</a>
+  </nav>
+<main>
+  <h1>Katalog & Pencarian EV</h1>
+  <p class="sub" id="count" aria-live="polite">Memuat…</p>
+
+  <section class="panel" aria-label="Filter kendaraan">
+    <div>
+      <label for="q">Cari model</label>
+      <input id="q" type="search" placeholder="Mis. Seagull, Fox-R">
+    </div>
+    <div>
+      <div class="lbl"><span>Harga maksimum</span><output id="priceOut">Semua harga</output></div>
+      <input id="price" type="range" min="20" max="800" step="10" value="800" aria-label="Harga maksimum (juta rupiah)">
+    </div>
+    <div>
+      <div class="lbl"><span>Kapasitas baterai</span><a id="reset" role="button" tabindex="0">Reset filter</a></div>
+      <select id="battery" aria-label="Kapasitas baterai">
+        <option value="">Semua kapasitas</option>
+        <option value="0-5">Kurang dari 5 kWh</option>
+        <option value="5-40">5 – 40 kWh</option>
+        <option value="40-">40 kWh ke atas</option>
+      </select>
+    </div>
+    <div class="chips" role="group" aria-label="Tipe kendaraan">
+      <button class="chip" data-type="semua" aria-pressed="true">Semua tipe</button>
+      <button class="chip" data-type="motor" aria-pressed="false">Motor listrik</button>
+      <button class="chip" data-type="mobil" aria-pressed="false">Mobil listrik</button>
+    </div>
+    <div>
+      <label for="range">Jarak tempuh minimum</label>
+      <select id="range" aria-label="Jarak tempuh minimum">
+        <option value="">Semua jarak</option>
+        <option value="100">100 km ke atas</option>
+        <option value="200">200 km ke atas</option>
+        <option value="300">300 km ke atas</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Hasil pencarian"></section>
+</main>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <span id="barText"></span>
+  <button class="go" id="goCompare">Bandingkan sekarang</button>
+  <button class="link" id="clearCompare">Kosongkan</button>
+</div>
+
+<dialog id="dlg"><div class="scroll" id="dlgBody"></div><p style="text-align:right;margin:14px 0 0"><button class="btn" style="flex:none;padding:8px 18px" onclick="dlg.close()">Tutup</button></p></dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const MAX_COMPARE = 3;
+const rp = (n) => n >= 1e9 ? `Rp ${(n/1e9).toLocaleString("id-ID")} M` : `Rp ${(n/1e6).toLocaleString("id-ID",{maximumFractionDigits:1})} jt`;
+const state = { type: "semua", list: [], compare: new Map() };
+let timer;
+
+function params() {
+  const p = new URLSearchParams();
+  if ($("q").value.trim()) p.set("q", $("q").value.trim());
+  if (state.type !== "semua") p.set("type", state.type);
+  if (+$("price").value < +$("price").max) p.set("maxPrice", $("price").value * 1e6);
+  const [min, max] = $("battery").value.split("-");
+  if ($("range").value) p.set("minRange", $("range").value);
+  if (min) p.set("minBattery", min);
+  if (max) p.set("maxBattery", max);
+  return p;
+}
+
+async function load() {
+  try {
+    const res = await fetch("/api/vehicles?" + params());
+    if (!res.ok) throw new Error();
+    const { total, data } = await res.json();
+    state.list = data;
+    $("count").textContent = `${total} unit ditemukan. Pilih dua unit atau lebih untuk dibandingkan.`;
+    render();
+  } catch {
+    $("count").textContent = "Data gagal dimuat. Periksa koneksi lalu coba lagi.";
+    $("grid").replaceChildren();
+  }
+}
+
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+function spec(val, unit) { const d = el("div"); d.append(el("b", "", val), el("span", "", unit)); return d; }
+
+function render() {
+  const grid = $("grid"); grid.replaceChildren();
+  if (!state.list.length) {
+    const e = el("div", "empty", "Tidak ada kendaraan yang cocok dengan filter ini.");
+    e.append(document.createElement("br"));
+    const b = el("button", "btn", "Reset filter"); b.style.flex = "none"; b.onclick = resetAll; e.append(b);
+    grid.append(e); return;
+  }
+  for (const v of state.list) {
+    const c = el("article", "card" + (state.compare.has(v.id) ? " sel" : ""));
+    const top = el("div", "top"); top.append(el("span", "", v.brand), el("span", "tag", v.type === "motor" ? "Motor" : "Mobil"));
+    const specs = el("div", "specs");
+    specs.append(spec(v.batteryKwh.toLocaleString("id-ID"), "kWh"), spec(v.rangeKm, "km"), spec(v.chargerKw.toLocaleString("id-ID"), `kW ${v.chargerType}`));
+    const acts = el("div", "acts");
+    const cmp = el("button", "btn", state.compare.has(v.id) ? "Dipilih" : "Bandingkan");
+    cmp.onclick = () => toggleCompare(v);
+    const det = el("button", "link", "Detail"); det.onclick = () => showDetail(v.id);
+    acts.append(cmp, det);
+    c.append(top, el("h2", "name", v.model), el("div", "price", rp(v.price)), specs);
+    if (v.promo) c.append(el("span", "promo", v.promo));
+    c.append(acts); grid.append(c);
+  }
+}
+
+function toggleCompare(v) {
+  if (state.compare.has(v.id)) state.compare.delete(v.id);
+  else if (state.compare.size >= MAX_COMPARE) return alert(`Maksimal ${MAX_COMPARE} unit untuk dibandingkan.`);
+  else state.compare.set(v.id, v);
+  render(); updateBar();
+}
+function updateBar() {
+  const n = state.compare.size;
+  $("bar").hidden = n === 0;
+  $("barText").textContent = `${n} unit dipilih (maks. ${MAX_COMPARE})`;
+  $("goCompare").disabled = n < 2;
+  $("goCompare").style.opacity = n < 2 ? .5 : 1;
+}
+
+function table(rows, head) {
+  const t = document.createElement("table");
+  const tr = document.createElement("tr");
+  head.forEach((h) => tr.append(el("th", "", h))); t.append(tr);
+  rows.forEach((r) => { const row = document.createElement("tr"); r.forEach((c, i) => row.append(i ? el("td", "", c) : el("th", "", c))); t.append(row); });
+  return t;
+}
+const specRows = (vs) => [
+  ["Tipe", ...vs.map((v) => v.type === "motor" ? "Motor listrik" : "Mobil listrik")],
+  ["Harga OTR", ...vs.map((v) => rp(v.price))],
+  ["Baterai", ...vs.map((v) => `${v.batteryKwh.toLocaleString("id-ID")} kWh`)],
+  ["Jarak tempuh", ...vs.map((v) => `${v.rangeKm} km`)],
+  ["Pengisian daya", ...vs.map((v) => `${v.chargerKw.toLocaleString("id-ID")} kW ${v.chargerType}`)],
+  ["Promo", ...vs.map((v) => v.promo || "-")],
+];
+async function showDetail(id) {
+  const res = await fetch("/api/vehicles/" + id); if (!res.ok) return;
+  const v = await res.json();
+  $("dlgBody").replaceChildren(el("h2", "name", `${v.brand} ${v.model}`), table(specRows([v]), ["Spesifikasi", "Nilai"]));
+  $("dlg").showModal();
+}
+$("goCompare").onclick = () => {
+  const vs = [...state.compare.values()];
+  $("dlgBody").replaceChildren(table(specRows(vs), ["Spesifikasi", ...vs.map((v) => `${v.brand} ${v.model}`)]));
+  $("dlg").showModal();
+};
+$("clearCompare").onclick = () => { state.compare.clear(); render(); updateBar(); };
+
+function setType(t) {
+  state.type = t;
+  document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", c.dataset.type === t));
+}
+function resetAll() { $("q").value = ""; $("price").value = $("price").max; $("battery").value = ""; $("range").value = ""; setType("semua"); priceLabel(); load(); }
+function priceLabel() { $("priceOut").textContent = +$("price").value >= +$("price").max ? "Semua harga" : `Maks. Rp ${$("price").value} jt`; }
+
+$("q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 250); });
+$("price").addEventListener("input", () => { priceLabel(); clearTimeout(timer); timer = setTimeout(load, 150); });
+$("battery").addEventListener("change", load);
+$("range").addEventListener("change", load);
+document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { setType(c.dataset.type); load(); });
+$("reset").onclick = resetAll;
+$("reset").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") resetAll(); };
+load();
+</script>
+</body>
+</html>
