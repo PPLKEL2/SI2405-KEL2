@@ -38,9 +38,9 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
   const isZeroDistance = inputs.distanceKm === 0;
 
   return (
-    <div className="space-y-5">
+    <div data-testid="result-section" className="space-y-5">
       {/* Parameter Recap Header */}
-      <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs sm:p-5">
+      <div data-testid="result-recap-header" className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-100 pb-3">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -62,7 +62,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
           <div className="rounded-xl bg-white p-2.5 border border-slate-200/80 shadow-2xs">
             <span className="text-[11px] text-slate-400">Jarak Rata-rata:</span>
             <p className="mt-0.5 text-sm font-bold text-slate-900">
-              {formatNumberId(inputs.distanceKm)} <span className="text-xs font-medium text-slate-500">km / hari</span>
+              {formatNumberId(inputs.distanceKm)} <span data-testid="result-recap-distance" className="text-xs font-medium text-slate-500">km / hari</span>
             </p>
           </div>
           <div className="rounded-xl bg-white p-2.5 border border-slate-200/80 shadow-2xs">
@@ -92,7 +92,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
       {/* 3 Main Period Cards matching Figma P component */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1: Harian */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+        <div data-testid="result-card-daily" className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="border-b border-slate-100 pb-3">
             <div className="flex items-center justify-between">
               <span className="text-[12px] font-semibold text-slate-500">
@@ -104,7 +104,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400">Biaya BBM:</span>
-              <p className="text-2xl font-black tracking-tight text-slate-900">
+              <p data-testid="result-daily-cost" className="text-2xl font-black tracking-tight text-slate-900">
                 {formatRupiah(daily.cost)}
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
           <div className="mt-3 pt-1">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500">Konsumsi Liter:</span>
-              <span className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
+              <span data-testid="result-daily-liters" className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
                 {formatLiters(daily.liters)}
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
         </div>
 
         {/* Card 2: Bulanan (Highlighted Primary Period) */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-blue-600 bg-white p-5 shadow-sm shadow-blue-500/10">
+        <div data-testid="result-card-monthly" className="relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-blue-600 bg-white p-5 shadow-sm shadow-blue-500/10">
           <div className="absolute top-0 right-0 bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white rounded-bl-lg">
             30 Hari Konsisten
           </div>
@@ -137,7 +137,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400">Biaya BBM:</span>
-              <p className="text-2xl font-black tracking-tight text-blue-700">
+              <p data-testid="result-monthly-cost" className="text-2xl font-black tracking-tight text-blue-700">
                 {formatRupiah(monthly.cost)}
               </p>
             </div>
@@ -146,7 +146,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
           <div className="mt-3 pt-1">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500">Konsumsi Liter:</span>
-              <span className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
+              <span data-testid="result-monthly-liters" className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
                 {formatLiters(monthly.liters)}
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
         </div>
 
         {/* Card 3: Tahunan */}
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+        <div data-testid="result-card-yearly" className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="border-b border-slate-100 pb-3">
             <div className="flex items-center justify-between">
               <span className="text-[12px] font-semibold text-slate-500">
@@ -169,7 +169,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400">Biaya BBM:</span>
-              <p className="text-2xl font-black tracking-tight text-slate-900">
+              <p data-testid="result-yearly-cost" className="text-2xl font-black tracking-tight text-slate-900">
                 {formatRupiah(yearly.cost)}
               </p>
             </div>
@@ -178,7 +178,7 @@ export default function ResultSection({ result, onLoadExample }: ResultSectionPr
           <div className="mt-3 pt-1">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500">Konsumsi Liter:</span>
-              <span className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
+              <span data-testid="result-yearly-liters" className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700">
                 {formatLiters(yearly.liters)}
               </span>
             </div>

@@ -180,6 +180,7 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
+                        data-testid="tab-estimasi-standar"
                         onClick={() => setShowManualBasicForm(false)}
                         className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                           !showManualBasicForm
@@ -191,6 +192,7 @@ export default function Home() {
                       </button>
                       <button
                         type="button"
+                        data-testid="tab-formulir-manual"
                         onClick={() => setShowManualBasicForm(true)}
                         className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                           showManualBasicForm

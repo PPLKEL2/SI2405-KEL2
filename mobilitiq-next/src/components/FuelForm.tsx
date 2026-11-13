@@ -29,7 +29,7 @@ export default function FuelForm({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-            Parameter Perjalanan & BBM
+            Parameter Perjalanan &amp; BBM
           </h2>
           <p className="text-xs text-slate-500">
             Masukkan data jarak harian, konsumsi BBM kendaraan, dan harga per liter.
@@ -37,6 +37,7 @@ export default function FuelForm({
         </div>
         <button
           type="button"
+          data-testid="fuelform-btn-load-example"
           onClick={onLoadExample}
           className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/80 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95"
           title="Isi otomatis dengan contoh acuan: 60 km/hari, 12 km/L, Rp10.000"
@@ -48,7 +49,7 @@ export default function FuelForm({
         </button>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5" noValidate>
+      <form data-testid="fuelform-form" onSubmit={onSubmit} className="space-y-5" noValidate>
         {/* 1. Jarak Tempuh Rata-rata per Hari */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
@@ -66,6 +67,7 @@ export default function FuelForm({
               step="any"
               min="0"
               placeholder="Contoh: 60"
+              data-testid="fuelform-input-daily-distance"
               value={input.dailyDistance}
               onChange={(e) => onChange("dailyDistance", e.target.value)}
               className={`h-11 block w-full rounded-xl border bg-white pl-3.5 pr-20 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 ${
@@ -82,7 +84,7 @@ export default function FuelForm({
           </div>
 
           {errors.dailyDistance ? (
-            <p className="flex items-center gap-1 text-xs font-medium text-red-600">
+            <p data-testid="fuelform-error-daily-distance" className="flex items-center gap-1 text-xs font-medium text-red-600">
               <svg className="h-3.5 w-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
@@ -106,6 +108,7 @@ export default function FuelForm({
               <button
                 key={chip.val}
                 type="button"
+                data-testid={`fuelform-chip-distance-${chip.val}`}
                 onClick={() => onChange("dailyDistance", chip.val)}
                 className={`rounded-lg border px-2.5 py-0.5 text-xs font-medium transition ${
                   input.dailyDistance === chip.val
@@ -136,6 +139,7 @@ export default function FuelForm({
               step="any"
               min="0.1"
               placeholder="Contoh: 12"
+              data-testid="fuelform-input-vehicle-efficiency"
               value={input.vehicleEfficiency}
               onChange={(e) => onChange("vehicleEfficiency", e.target.value)}
               className={`h-11 block w-full rounded-xl border bg-white pl-3.5 pr-20 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 ${
@@ -152,7 +156,7 @@ export default function FuelForm({
           </div>
 
           {errors.vehicleEfficiency ? (
-            <p className="flex items-center gap-1 text-xs font-medium text-red-600">
+            <p data-testid="fuelform-error-vehicle-efficiency" className="flex items-center gap-1 text-xs font-medium text-red-600">
               <svg className="h-3.5 w-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
@@ -176,6 +180,7 @@ export default function FuelForm({
               <button
                 key={chip.val}
                 type="button"
+                data-testid={`fuelform-chip-efficiency-${chip.val}`}
                 onClick={() => onChange("vehicleEfficiency", chip.val)}
                 className={`rounded-lg border px-2.5 py-0.5 text-xs font-medium transition ${
                   input.vehicleEfficiency === chip.val
@@ -198,6 +203,7 @@ export default function FuelForm({
             <div className="relative">
               <select
                 id="fuelTypeSelect"
+                data-testid="fuelform-select-fuel-type"
                 value={input.fuelTypeId}
                 onChange={(e) => {
                   const selected = FUEL_PRESETS.find((p) => p.id === e.target.value);
@@ -233,6 +239,7 @@ export default function FuelForm({
               <input
                 type="text"
                 id="fuelTypeName"
+                data-testid="fuelform-input-fuel-type-name"
                 value={input.fuelTypeName}
                 placeholder="Contoh: Shell Super / Revvo 92"
                 onChange={(e) => onChange("fuelTypeName", e.target.value)}
@@ -261,6 +268,7 @@ export default function FuelForm({
                 step="any"
                 min="1"
                 placeholder="Contoh: 10000"
+                data-testid="fuelform-input-fuel-price"
                 value={input.fuelPricePerLiter}
                 onChange={(e) => onChange("fuelPricePerLiter", e.target.value)}
                 className={`h-11 block w-full rounded-xl border bg-white pl-11 pr-20 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 ${
@@ -277,7 +285,7 @@ export default function FuelForm({
             </div>
 
             {errors.fuelPricePerLiter ? (
-              <p className="flex items-center gap-1 text-xs font-medium text-red-600">
+              <p data-testid="fuelform-error-fuel-price" className="flex items-center gap-1 text-xs font-medium text-red-600">
                 <svg className="h-3.5 w-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
@@ -295,6 +303,7 @@ export default function FuelForm({
         <div className="flex flex-col gap-2.5 pt-1 sm:flex-row">
           <button
             type="submit"
+            data-testid="fuelform-btn-submit"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:bg-blue-800"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -305,6 +314,7 @@ export default function FuelForm({
 
           <button
             type="button"
+            data-testid="fuelform-btn-reset"
             onClick={onReset}
             className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100"
           >
