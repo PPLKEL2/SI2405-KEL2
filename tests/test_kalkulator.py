@@ -72,13 +72,34 @@ def wait_for(driver, testid, timeout=WAIT_TIMEOUT):
 
 
 def clear_and_type(driver, testid, value, timeout=WAIT_TIMEOUT):
-    """Kosongkan dan ketik nilai baru ke input dengan data-testid tertentu."""
+    """
+    Kosongkan dan ketik nilai baru ke React-controlled input.
+
+    Selenium's .clear() tidak memicu React onChange karena React memakai
+    synthetic events. Solusi: gunakan JavaScript native value setter
+    agar React state berubah, lalu dispatch 'input' event secara eksplisit.
+    Setelah itu, kirim karakter baru via send_keys agar onChange akhirnya
+    memperbarui state komponen.
+    """
     el = wait_for(driver, testid, timeout)
-    el.clear()
-    # Pastikan clear berhasil (beberapa browser perlu triple-click)
-    el.send_keys(Keys.CONTROL + "a")
-    el.send_keys(Keys.DELETE)
-    el.send_keys(str(value))
+
+    # 1. Set value ke "" via native setter agar React mendeteksi perubahan
+    driver.execute_script(
+        """
+        var nativeSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLInputElement.prototype, 'value'
+        ).set;
+        nativeSetter.call(arguments[0], '');
+        arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+        arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+        """,
+        el,
+    )
+
+    if str(value) != "":
+        # 2. Ketik nilai baru; send_keys selalu memicu React onChange
+        el.send_keys(str(value))
+
     return el
 
 
@@ -280,7 +301,17 @@ class TestNegativeCases:
                 f"got '{err_el.text}'"
             )
 
-        # Pastikan hasil TIDAK muncul
+        # Pastikan hasil TIDAK muncul (result=null setelah validasi gagal → elemen hilang dari DOM)
+        # Tunggu React selesai re-render, lalu pastikan result-section tidak ada / tidak visible
+        try:
+            WebDriverWait(driver, 3).until(
+                EC.invisibility_of_element_located(
+                    (By.CSS_SELECTOR, f'[data-testid="{TID_RESULT_SECTION}"]')
+                )
+            )
+        except Exception:
+            pass  # Jika elemen memang tidak ada di DOM, invisibility sudah terpenuhi
+
         result_els = driver.find_elements(
             By.CSS_SELECTOR, f'[data-testid="{TID_RESULT_SECTION}"]'
         )
@@ -406,3 +437,4 @@ class TestButtonFeatures:
             f"TC-15: Chip efficiency-45 harus set nilai 45, "
             f"got '{eff_input.get_attribute('value')}'"
         )
+

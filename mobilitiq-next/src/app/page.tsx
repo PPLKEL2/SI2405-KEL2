@@ -72,6 +72,7 @@ export default function Home() {
     const validation = validateCalculatorInputs(input);
     if (!validation.isValid || !validation.parsedValues) {
       setErrors(validation.errors);
+      setResult(null); // Sembunyikan hasil lama ketika validasi gagal
       return;
     }
     setErrors({});
