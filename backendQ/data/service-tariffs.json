@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "facilityId": 1,
+    "serviceType": "CHARGING",
+    "unit": "kWh",
+    "priceIdr": 2466,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "facilityId": 2,
+    "serviceType": "CHARGING",
+    "unit": "kWh",
+    "priceIdr": 2550,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "facilityId": 3,
+    "serviceType": "SWAP",
+    "unit": "transaksi",
+    "priceIdr": 15000,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "facilityId": 5,
+    "serviceType": "CHARGING",
+    "unit": "kWh",
+    "priceIdr": 2466,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "facilityId": 6,
+    "serviceType": "SWAP",
+    "unit": "transaksi",
+    "priceIdr": 14000,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "facilityId": 8,
+    "serviceType": "CHARGING",
+    "unit": "kWh",
+    "priceIdr": 2466,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "facilityId": 9,
+    "serviceType": "SWAP",
+    "unit": "transaksi",
+    "priceIdr": 14500,
+    "validFrom": "2024-01-01",
+    "validUntil": null,
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  }
+]
