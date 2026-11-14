@@ -126,12 +126,9 @@ export default function MitraLayout({
       <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col md:flex-row">
           {/* Mobile Header Bar */}
           <div className="md:hidden flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sticky top-0 z-40">
-            <Link href="/mitra" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#1E40AF] flex items-center justify-center text-white font-bold text-sm">
-                M
-              </div>
-              <span className="font-bold text-slate-900">MobilitiQ</span>
-            </Link>
+            <span className="font-bold text-slate-900 text-sm tracking-wide">
+              PORTAL MITRA
+            </span>
 
           <button
             type="button"
@@ -215,16 +212,6 @@ export default function MitraLayout({
 
         {/* Desktop Sidebar (1:1 with Figma Frame 22) */}
         <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white min-h-screen px-4 py-6 shrink-0 sticky top-0 h-screen">
-          {/* Brand Header */}
-          <div className="flex items-center gap-2.5 px-3 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-[#1E40AF] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              M
-            </div>
-            <span className="font-extrabold text-slate-900 text-lg tracking-tight">
-              MobilitiQ
-            </span>
-          </div>
-
           {/* Section Heading */}
           <div className="px-3 mb-2 text-[11px] font-bold text-slate-400 tracking-wider">
             PORTAL MITRA
