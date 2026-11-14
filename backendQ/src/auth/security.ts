@@ -271,7 +271,7 @@ export function requireRole(...allowedRoles: UserRole[]) {
 export function resolveRoleRedirectPath(role: UserRole): string {
   switch (role) {
     case "MITRA":
-      return "/mitra/katalog";
+      return "/mitra";
     case "SUPERADMIN":
       return "/admin/tarif-energi";
     case "USER":

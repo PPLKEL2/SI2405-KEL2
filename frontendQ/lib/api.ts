@@ -81,3 +81,34 @@ export function formatNumberId(
   });
 }
 
+export interface MitraDailyLead {
+  day: string;
+  leads: number;
+}
+
+export interface MitraTopRecommendedUnit {
+  name: string;
+  recommendations: number;
+  leadRate: number;
+}
+
+export interface MitraDashboardSummary {
+  activeCatalogUnits: number;
+  promoUnits: number;
+  weeklyLeads: number;
+  weeklyLeadsGrowth: string;
+  totalRecommendedInSimulations: number;
+  totalFacilities: number;
+  facilityBreakdown: string;
+  dailyLeads: MitraDailyLead[];
+  topRecommendedUnits: MitraTopRecommendedUnit[];
+}
+
+export async function getMitraDashboardSummary(): Promise<MitraDashboardSummary> {
+  const res = await apiFetch<{ success: boolean; data: MitraDashboardSummary }>(
+    "/mitra/dashboard-summary"
+  );
+  return res.data;
+}
+
+

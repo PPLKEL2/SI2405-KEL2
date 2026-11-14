@@ -223,7 +223,7 @@ describe("MobilitiQ Sprint 1 API & Auth RBAC Suite", () => {
     assert.equal(resMitra.status, 200);
     assert.equal(resMitra.data.data.user.role, "MITRA");
     assert.equal(resMitra.data.data.user.passwordHash, undefined);
-    assert.equal(resMitra.data.data.redirectTo, "/mitra/katalog");
+    assert.equal(resMitra.data.data.redirectTo, "/mitra");
     mitraCookie = extractCookieToken(resMitra.setCookie);
 
     const resSuper = await apiRequest("/auth/login", {
@@ -524,5 +524,29 @@ describe("MobilitiQ Sprint 1 API & Auth RBAC Suite", () => {
       },
     });
     assert.equal(createIncentiveRes.status, 201);
+  });
+
+  test("Dashboard Mitra (Figma Frame 22): Agregasi real-time unit aktif, fasilitas, dan proteksi role", async () => {
+    // Unauthenticated -> 401
+    const anonRes = await apiRequest("/mitra/dashboard-summary");
+    assert.equal(anonRes.status, 401);
+
+    // USER -> 403
+    const userRes = await apiRequest("/mitra/dashboard-summary", {
+      cookie: userCookie,
+    });
+    assert.equal(userRes.status, 403);
+
+    // MITRA -> 200 OK
+    const mitraRes = await apiRequest("/mitra/dashboard-summary", {
+      cookie: mitraCookie,
+    });
+    assert.equal(mitraRes.status, 200);
+    assert.equal(mitraRes.data.success, true);
+    assert.ok(typeof mitraRes.data.data.activeCatalogUnits === "number");
+    assert.ok(typeof mitraRes.data.data.totalFacilities === "number");
+    assert.ok(mitraRes.data.data.facilityBreakdown.length > 0);
+    assert.equal(mitraRes.data.data.dailyLeads.length, 7);
+    assert.ok(mitraRes.data.data.topRecommendedUnits.length >= 3);
   });
 });

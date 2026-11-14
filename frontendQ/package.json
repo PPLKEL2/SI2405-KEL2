@@ -14,7 +14,7 @@
     "google-antigravity": "file:../../../AppData/Local/Programs/Antigravity IDE/resources/app/extensions/agy",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.70.0",
-    "mobilitiq-sprint1-local": "file:../../MobilitiQ-Sprint1-v2",
+    "mobilitiq-sprint1-local": "file:..",
     "next": "16.4.4",
     "react": "19.3.0",
     "react-dom": "19.3.0"
