@@ -1,0 +1,32 @@
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap";
+
+/* Token warna & font MobilitiQ (sama dengan frontendQ utama) */
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", ui-sans-serif, sans-serif;
+  --color-brand: #1e40af;
+  --color-electric: #2563eb;
+  --color-electric-dark: #1d4ed8;
+  --color-canvas: #f8fafc;
+  --color-line: #e2e8f0;
+  --color-ink: #0f172a;
+  --color-mute: #64748b;
+  --color-ok: #10b981;
+  --color-ok-ink: #047857;
+  --color-bad: #ef4444;
+  --color-bad-ink: #b91c1c;
+  --color-tint: #eff6ff;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--font-heading); letter-spacing: -0.015em; margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-electric); outline-offset: 2px; border-radius: 8px; }

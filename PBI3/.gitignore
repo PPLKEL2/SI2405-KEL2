@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+backendQ/node_modules/
+frontendQ/node_modules/
+
+# Production builds & caches
+backendQ/dist/
+frontendQ/.next/
+frontendQ/out/
+frontendQ/build/
+
+# Data runtime backend (dibuat otomatis saat server berjalan)
+backendQ/data/
+
+# Environment files
+.env
+.env*.local
+backendQ/.env
+frontendQ/.env
+frontendQ/.env*.local
+
+# Python virtualenv (tidak dipakai proyek ini)
+.venv/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
