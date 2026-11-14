@@ -124,17 +124,14 @@ export default function MitraLayout({
   return (
     <RoleGuard allowedRoles={["MITRA", "SUPERADMIN"]}>
       <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col md:flex-row">
-        {/* Mobile Header Bar */}
-        <div className="md:hidden flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sticky top-0 z-40">
-          <Link href="/mitra" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#1E40AF] flex items-center justify-center text-white font-bold text-sm">
-              M
-            </div>
-            <span className="font-bold text-slate-900">MobilitiQ</span>
-            <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-[#1E40AF] border border-blue-200">
-              MITRA
-            </span>
-          </Link>
+          {/* Mobile Header Bar */}
+          <div className="md:hidden flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sticky top-0 z-40">
+            <Link href="/mitra" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#1E40AF] flex items-center justify-center text-white font-bold text-sm">
+                M
+              </div>
+              <span className="font-bold text-slate-900">MobilitiQ</span>
+            </Link>
 
           <button
             type="button"
@@ -225,9 +222,6 @@ export default function MitraLayout({
             </div>
             <span className="font-extrabold text-slate-900 text-lg tracking-tight">
               MobilitiQ
-            </span>
-            <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-[#1E40AF] border border-blue-200 tracking-wider">
-              MITRA
             </span>
           </div>
 
