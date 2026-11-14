@@ -1,0 +1,17 @@
+{
+  "name": "mobilitiq-sprint1-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplikasi MobilitiQ Sprint 1 Local (frontendQ + backendQ)",
+  "scripts": {
+    "install:all": "npm --prefix backendQ install && npm --prefix frontendQ install",
+    "dev:backend": "npm --prefix backendQ run dev",
+    "dev:frontend": "npm --prefix frontendQ run dev",
+    "dev": "node scripts/dev-all.mjs",
+    "build": "npm --prefix backendQ run build && npm --prefix frontendQ run build",
+    "typecheck": "npm --prefix backendQ run typecheck && npm --prefix frontendQ run typecheck",
+    "test": "npm --prefix backendQ test && npm --prefix frontendQ test",
+    "seed:users": "npm --prefix backendQ run seed:users"
+  }
+}
+
