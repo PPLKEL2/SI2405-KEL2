@@ -1,8 +1,0 @@
-{
-  "name": "ev-dealer-admin",
-  "version": "1.0.0",
-  "description": "Manajemen data kendaraan listrik oleh admin mitra/dealer",
-  "main": "server.js",
-  "scripts": { "start": "node server.js", "test": "node --test" },
-  "dependencies": { "cors": "^2.8.5", "express": "^4.19.2" }
-}
