@@ -34,6 +34,14 @@ app.use(
   })
 );
 
+// Mendukung Private Network Access (PNA) untuk Chrome saat diakses via IP jaringan
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.headers["access-control-request-private-network"]) {
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+  }
+  next();
+});
+
 app.use(express.json({ limit: "1mb" }));
 
 // Root welcome & API explorer (menampilkan katalog API saat membuka localhost:4000)

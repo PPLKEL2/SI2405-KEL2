@@ -86,6 +86,13 @@ export default function InteractiveLeafletMap({
       });
 
       renderOverlays();
+
+      // Invalidate size agar tiles langsung di-render penuh tanpa grey container
+      setTimeout(() => {
+        if (mounted && mapRef.current) {
+          mapRef.current.invalidateSize();
+        }
+      }, 250);
     }
 
     initMap();
@@ -207,6 +214,11 @@ export default function InteractiveLeafletMap({
 
   useEffect(() => {
     renderOverlays();
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current?.invalidateSize();
+      }, 100);
+    }
   }, [facilities, selectedFacilityId, originCoords, routeCoordinates]);
 
   return (
