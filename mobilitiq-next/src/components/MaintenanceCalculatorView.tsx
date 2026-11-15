@@ -81,12 +81,12 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
           {/* Top 3 Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
             {/* Card 1: BBM / bulan */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <div data-testid="maint-card-fuel" className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
               <span className="text-xs font-semibold text-slate-500">
                 BBM / bulan
               </span>
               <div className="mt-2">
-                <div className="text-2xl font-black tracking-tight text-slate-900">
+                <div data-testid="maint-val-fuel-cost" className="text-2xl font-black tracking-tight text-slate-900">
                   {formatRupiah(result.monthlyFuelCost)}
                 </div>
                 <div className="mt-1 text-xs font-medium text-slate-500">
@@ -96,12 +96,12 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
             </div>
 
             {/* Card 2: Perawatan / bulan */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <div data-testid="maint-card-maintenance" className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
               <span className="text-xs font-semibold text-slate-500">
                 Perawatan / bulan
               </span>
               <div className="mt-2">
-                <div className="text-2xl font-black tracking-tight text-slate-900">
+                <div data-testid="maint-val-maintenance-cost" className="text-2xl font-black tracking-tight text-slate-900">
                   {formatRupiah(result.monthlyMaintenanceCost)}
                 </div>
                 <div className="mt-1 text-xs font-medium text-slate-500">
@@ -111,12 +111,12 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
             </div>
 
             {/* Card 3: Total / bulan */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between bg-gradient-to-br from-white to-blue-50/40">
+            <div data-testid="maint-card-total" className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between bg-gradient-to-br from-white to-blue-50/40">
               <span className="text-xs font-semibold text-slate-500">
                 Total / bulan
               </span>
               <div className="mt-2">
-                <div className="text-2xl font-black tracking-tight text-blue-900">
+                <div data-testid="maint-val-total-cost" className="text-2xl font-black tracking-tight text-blue-900">
                   {formatRupiah(result.monthlyTotalCost)}
                 </div>
                 <div className="mt-1 text-xs font-medium text-slate-500">
@@ -195,7 +195,7 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
           </div>
 
           {/* Card: Rincian Perawatan per Bulan */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4">
+          <div data-testid="maint-section-breakdown" className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4">
             <div className="border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900">
                 Rincian perawatan per bulan
@@ -237,7 +237,7 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
           </div>
 
           {/* Card: Komparasi Perawatan Kendaraan Listrik (EV) */}
-          <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/60 to-white p-6 shadow-xs space-y-4">
+          <div data-testid="maint-section-ev-comparison" className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/60 to-white p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-blue-100/80 pb-3">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -255,7 +255,7 @@ export default function MaintenanceCalculatorView({}: MaintenanceCalculatorViewP
                 </div>
               </div>
 
-              <span className="self-start sm:self-auto rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
+              <span data-testid="maint-badge-ev-savings" className="self-start sm:self-auto rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
                 Hemat ~{result.evComparison.savingsPercentage}%
               </span>
             </div>

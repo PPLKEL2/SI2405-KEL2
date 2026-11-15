@@ -79,6 +79,7 @@ export default function MaintenanceForm({
         <div className="relative">
           <select
             id="vehicle-select"
+            data-testid="maint-select-vehicle"
             value={selectedVehicle}
             onChange={(e) => onVehicleChange(e.target.value)}
             className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs focus:border-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-100 transition"
@@ -113,6 +114,7 @@ export default function MaintenanceForm({
         <div className="relative flex items-center">
           <input
             id="fuel-efficiency-range"
+            data-testid="maint-range-efficiency"
             type="range"
             min={5}
             max={60}
@@ -143,6 +145,7 @@ export default function MaintenanceForm({
         <div className="relative">
           <select
             id="fuel-type-select"
+            data-testid="maint-select-fuel-type"
             value={fuelType}
             onChange={(e) => onFuelTypeChange(e.target.value)}
             className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs focus:border-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-100 transition"
@@ -178,6 +181,7 @@ export default function MaintenanceForm({
         <div className="relative flex items-center">
           <input
             id="distance-range"
+            data-testid="maint-range-distance"
             type="range"
             min={5}
             max={150}
@@ -210,6 +214,7 @@ export default function MaintenanceForm({
             <button
               key={period}
               type="button"
+              data-testid={`maint-btn-period-${period}`}
               onClick={() => onOwnershipPeriodChange(period)}
               className={`rounded-xl py-2 text-xs font-bold transition-all ${
                 ownershipPeriod === period
