@@ -189,7 +189,7 @@ export default function Home() {
                             : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900"
                         }`}
                       >
-                        Estimasi Standar &amp; Perawatan
+                        Estimasi Perawatan
                       </button>
                       <button
                         type="button"
@@ -201,7 +201,7 @@ export default function Home() {
                             : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900"
                         }`}
                       >
-                        Formulir Manual Bebas (KEL2-54)
+                        Estimasi Biaya BBM
                       </button>
                     </div>
                   </div>
