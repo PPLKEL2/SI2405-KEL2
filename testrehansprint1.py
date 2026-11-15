@@ -13,8 +13,8 @@ BASE_URL = os.getenv("BASE_URL", "http://localhost:3000")
 @pytest.fixture
 def driver():
     options = webdriver.ChromeOptions()
-    # Hapus baris berikut kalau mau browser terlihat saat tes berjalan.
-    options.add_argument("--headless=new")
+    # Dinonaktifkan agar browser Chrome terbuka dan terlihat langsung saat kamu jalankan tes sendiri:
+    # options.add_argument("--headless=new")
 
     browser = webdriver.Chrome(options=options)
     browser.set_window_size(1440, 1000)
