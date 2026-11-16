@@ -130,6 +130,28 @@ export default function MitraFasilitasPage() {
     }
   }
 
+  async function handleDelete(fac: MapFacilityMarker) {
+    const confirmed = window.confirm(
+      `Hapus lokasi fasilitas "${fac.name}"? Lokasi akan dinonaktifkan dan tidak tampil sebagai fasilitas aktif.`
+    );
+    if (!confirmed) return;
+
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await apiFetch(`/facilities/${fac.id}`, {
+        method: "DELETE",
+      });
+      setSuccessMsg(res?.message || "Lokasi fasilitas berhasil dihapus.");
+      if (editingId === fac.id) {
+        resetForm();
+      }
+      await fetchFacilities();
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Gagal menghapus lokasi fasilitas.");
+    }
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Kolom Form Tambah / Ubah Lokasi Fasilitas */}
@@ -317,15 +339,24 @@ export default function MitraFasilitasPage() {
                   Kontak Layanan *
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   data-testid="facility-form-contact"
                   value={form.contact}
                   onChange={(e) =>
-                    setForm({ ...form, contact: e.target.value })
+                    setForm({
+                      ...form,
+                      contact: e.target.value.replace(/[^0-9+()\-/\s]/g, ""),
+                    })
                   }
                   placeholder="021-5551234 / 123"
                   className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900"
                 />
+                {fieldErrors.contact && (
+                  <p className="mt-1 text-[11px] text-red-600">
+                    {fieldErrors.contact}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -467,6 +498,13 @@ export default function MitraFasilitasPage() {
                       >
                         {fac.active ? "Nonaktifkan" : "Aktifkan"}
                       </button>
+                       <button
+                         type="button"
+                         onClick={() => handleDelete(fac)}
+                         className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                       >
+                         Hapus
+                       </button>
                     </td>
                   </tr>
                 ))}
