@@ -34,6 +34,8 @@ app.use(
   })
 );
 
+app.use(express.json({ limit: "1mb" }));
+
 // Mendukung Private Network Access (PNA) untuk Chrome saat diakses via IP jaringan
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.headers["access-control-request-private-network"]) {

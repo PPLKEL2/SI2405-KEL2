@@ -100,6 +100,8 @@ export default function EvEnergySimulatorPage() {
     try {
       const payload = {
         evModelId: selectedEvId,
+        consumptionKwh100km: Number(consumptionKwh100km),
+        dailyDistanceKm: Number(dailyDistanceKm),
         consumptionKwh100km: cons,
         dailyDistanceKm: dist,
         homeChargingPercentage: Number(homeChargingPercentage),
@@ -169,6 +171,7 @@ export default function EvEnergySimulatorPage() {
         </div>
 
         {errorMsg && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
           <div data-testid="validation-message" className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
             {errorMsg}
           </div>
@@ -218,6 +221,9 @@ export default function EvEnergySimulatorPage() {
                 min="5"
                 max="300"
                 step="5"
+                value={dailyDistanceKm}
+                onChange={(e) => {
+                  setDailyDistanceKm(e.target.value);
                 value={Number(dailyDistanceKm) || 60}
                 onChange={(e) => {
                   setDailyDistanceKm(e.target.value);
@@ -232,6 +238,10 @@ export default function EvEnergySimulatorPage() {
               <div className="mt-1.5 flex items-center gap-2">
                 <input
                   type="number"
+                  value={dailyDistanceKm}
+                  onChange={(e) => {
+                    setDailyDistanceKm(e.target.value);
+                    runCalc({ dailyDistanceKm: Number(e.target.value) });
                   data-testid="distance-input"
                   defaultValue="60"
                   onChange={(e) => {
@@ -261,6 +271,7 @@ export default function EvEnergySimulatorPage() {
                 value={homeChargingPercentage}
                 onChange={(e) => {
                   setHomeChargingPercentage(e.target.value);
+                  runCalc({ homeChargingPercentage: Number(e.target.value) });
                 }}
                 className="h-2 w-full cursor-pointer accent-[#2563EB]"
               />
@@ -277,6 +288,10 @@ export default function EvEnergySimulatorPage() {
               <input
                 type="number"
                 step="0.1"
+                value={consumptionKwh100km}
+                onChange={(e) => {
+                  setConsumptionKwh100km(e.target.value);
+                  runCalc({ consumptionKwh100km: Number(e.target.value) });
                 data-testid="consumption-input"
                 defaultValue="3.2"
                 onChange={(e) => {
@@ -287,6 +302,7 @@ export default function EvEnergySimulatorPage() {
             </div>
 
             <button
+              type="submit"
               type="button"
               data-testid="calculate-button"
               onClick={() => runCalc()}
@@ -303,6 +319,8 @@ export default function EvEnergySimulatorPage() {
               {/* Card 1: Konsumsi energi */}
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <span className="text-xs text-slate-500">Konsumsi energi</span>
+                <p className="mt-1.5 num font-heading text-2xl font-extrabold text-slate-900">
+                  {formatNumberId(monthlyKwh, 1)} kWh/bulan
                 <p data-testid="energy-result" className="mt-1.5 num font-heading text-2xl font-extrabold text-slate-900">
                   {(() => {
                     const dist = Number(dailyDistanceKm);
