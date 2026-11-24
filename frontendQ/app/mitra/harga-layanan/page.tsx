@@ -111,6 +111,30 @@ export default function MitraHargaLayananPage() {
     setErrorMsg(null);
   }
 
+  async function handleDelete(tariff: ServiceTariffItem) {
+    const confirmed = window.confirm(
+      `Hapus tarif ${tariff.serviceType} untuk ${getFacilityName(
+        tariff.facilityId
+      )}?`
+    );
+    if (!confirmed) return;
+
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await apiFetch(`/service-tariffs/${tariff.id}`, {
+        method: "DELETE",
+      });
+      setSuccessMsg(res?.message || "Tarif layanan fasilitas berhasil dihapus.");
+      if (editingId === tariff.id) {
+        resetForm();
+      }
+      await loadAll();
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Gagal menghapus tarif layanan fasilitas.");
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
@@ -479,6 +503,14 @@ export default function MitraHargaLayananPage() {
                         className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                       >
                         Ubah
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`delete-service-tariff-${t.id}`}
+                        onClick={() => handleDelete(t)}
+                        className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                      >
+                        Hapus
                       </button>
                     </td>
                   </tr>

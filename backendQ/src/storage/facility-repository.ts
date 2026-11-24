@@ -263,6 +263,10 @@ export function validateFacilityInput(input: Partial<EvFacilityInput>): {
   if (!address) errors.address = "Alamat fasilitas wajib diisi.";
   if (!operatingHours) errors.operatingHours = "Jam operasional wajib diisi.";
   if (!contact) errors.contact = "Kontak fasilitas wajib diisi.";
+  else if (!/^(?=.*\d)[0-9+()\-/\s]+$/.test(contact)) {
+    errors.contact =
+      "Kontak fasilitas hanya boleh berisi angka dan format telepon yang valid.";
+  }
 
   const latitude = Number(input.latitude);
   const longitude = Number(input.longitude);
@@ -523,6 +527,20 @@ class FacilityRepository {
     return this.facilities[idx];
   }
 
+  public deleteFacility(id: number): EvFacility | null {
+    this.ensureInitialized();
+    const idx = this.facilities.findIndex((f) => f.id === id);
+    if (idx === -1) return null;
+
+    const [deleted] = this.facilities.splice(idx, 1);
+    this.serviceTariffs = this.serviceTariffs.filter(
+      (tariff) => tariff.facilityId !== id
+    );
+    this.saveFacilities();
+    this.saveServiceTariffs();
+    return deleted;
+  }
+
   // PBI 06: Manajemen Harga Layanan Fasilitas EV
   public listServiceTariffs(filters: {
     facilityId?: number;
@@ -693,6 +711,16 @@ class FacilityRepository {
     this.serviceTariffs.push(created);
     this.saveServiceTariffs();
     return { ok: true, data: created };
+  }
+
+  public deleteServiceTariff(id: number): FacilityServiceTariff | null {
+    this.ensureInitialized();
+    const idx = this.serviceTariffs.findIndex((t) => t.id === id);
+    if (idx === -1) return null;
+
+    const [deleted] = this.serviceTariffs.splice(idx, 1);
+    this.saveServiceTariffs();
+    return deleted;
   }
 
   public resetToDefaultSeed(): void {

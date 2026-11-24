@@ -210,12 +210,15 @@ facilitiesRouter.patch(
   }
 );
 
+// PBI 05: Hapus permanen fasilitas beserta tarif terkait (Khusus Admin Mitra)
 // PBI 05: Nonaktifkan Fasilitas via DELETE (Khusus Admin Mitra)
 facilitiesRouter.delete(
   "/facilities/:id",
   requireRole("MITRA"),
   (req: Request, res: Response) => {
     const id = Number(req.params.id);
+    const deleted = facilityRepository.deleteFacility(id);
+    if (!deleted) {
     const updated = facilityRepository.setFacilityActiveStatus(id, false);
     if (!updated) {
       res.status(404).json({
@@ -226,6 +229,8 @@ facilitiesRouter.delete(
     }
     res.json({
       success: true,
+      message: `Fasilitas ${deleted.name} berhasil dihapus.`,
+      data: deleted,
       message: `Fasilitas ${updated.name} berhasil dinonaktifkan.`,
       data: updated,
     });
@@ -369,6 +374,28 @@ facilitiesRouter.put(
       success: true,
       message: "Tarif layanan fasilitas berhasil diperbarui.",
       data: result.data,
+    });
+  }
+);
+
+facilitiesRouter.delete(
+  "/service-tariffs/:id",
+  requireRole("MITRA"),
+  (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    const deleted = facilityRepository.deleteServiceTariff(id);
+    if (!deleted) {
+      res.status(404).json({
+        success: false,
+        error: "Data tarif layanan tidak ditemukan.",
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: "Tarif layanan fasilitas berhasil dihapus.",
+      data: deleted,
     });
   }
 );

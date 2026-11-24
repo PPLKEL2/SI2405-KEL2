@@ -10,6 +10,10 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
+  if (pathname.startsWith("/mitra")) {
+    return null;
+  }
+
   const isLandingPage = pathname === "/";
 
   const publicNavLinks = [

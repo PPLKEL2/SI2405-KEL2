@@ -1,0 +1,82 @@
+/* Portal Mitra MobilitiQ — gaya sesuai mockup "Manajemen Katalog EV" */
+.mq-shell { display: flex; min-height: 100vh; background: var(--color-canvas); }
+.mq-main { flex: 1; min-width: 0; padding: 40px 36px 64px; }
+.mq-container { max-width: 1040px; margin: 0 auto; }
+
+/* Sidebar */
+.mq-side { width: 220px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--color-line); padding: 18px 14px; position: sticky; top: 0; height: 100vh; }
+.mq-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 26px; }
+.mq-brand b { font-family: var(--font-heading); color: var(--color-brand); font-size: 17px; font-weight: 800; }
+.mq-tag { background: #eef2f6; color: var(--color-mute); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 18px; border-radius: 999px; }
+.mq-sec { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--color-mute); margin: 0 10px 8px; }
+.mq-nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.mq-nav-item { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; }
+.mq-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+a.mq-nav-item:hover { background: #f1f5f9; color: var(--color-ink); }
+.mq-nav-item.is-active { background: var(--color-tint); color: var(--color-brand); font-weight: 700; }
+.mq-nav-item.is-disabled { opacity: 0.55; cursor: not-allowed; }
+.mq-nav-gap { height: 18px; }
+
+/* Header halaman */
+.mq-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.mq-title { font-size: 26px; font-weight: 800; color: var(--color-ink); }
+.mq-sub { margin: 6px 0 0; font-size: 13px; color: var(--color-mute); }
+
+/* Tombol */
+.mq-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 18px; border-radius: 10px; border: 1px solid transparent; background: var(--color-electric); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.mq-btn:hover:not(:disabled) { background: var(--color-electric-dark); }
+.mq-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.mq-btn.ghost { background: #fff; color: var(--color-ink); border-color: var(--color-line); }
+.mq-btn.ghost:hover:not(:disabled) { background: #f1f5f9; }
+
+/* Tabel */
+.mq-card { background: #fff; border: 1px solid var(--color-line); border-radius: 16px; overflow: hidden; }
+.mq-scroll { overflow-x: auto; }
+.mq-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mq-table th { text-align: left; padding: 16px 14px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-mute); white-space: nowrap; }
+.mq-table td { padding: 16px 14px; border-top: 1px solid var(--color-line); white-space: nowrap; }
+.mq-table th:first-child, .mq-table td:first-child { padding-left: 20px; }
+.mq-model { font-weight: 700; }
+.mq-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: var(--color-tint); color: var(--color-electric); }
+.mq-status { border: 0; cursor: pointer; background: #d1fae5; color: var(--color-ok-ink); }
+.mq-status.off { background: #fee2e2; color: var(--color-bad-ink); }
+.mq-status:disabled { opacity: 0.6; cursor: wait; }
+.mq-actions { display: flex; gap: 2px; }
+.mq-icon { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--color-electric); cursor: pointer; }
+.mq-icon:hover:not(:disabled) { background: var(--color-tint); }
+.mq-icon.danger { color: var(--color-bad-ink); }
+.mq-icon.danger:hover:not(:disabled) { background: #fee2e2; }
+.mq-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+.mq-icon svg { width: 15px; height: 15px; }
+.mq-state { padding: 44px 20px; text-align: center; color: var(--color-mute); font-size: 13px; }
+.mq-state strong { display: block; color: var(--color-ink); margin-bottom: 6px; font-size: 14px; }
+
+/* Notifikasi */
+.mq-notice { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+.mq-notice.ok { background: #ecfdf5; color: var(--color-ok-ink); border: 1px solid #a7f3d0; }
+.mq-notice.error { background: #fef2f2; color: var(--color-bad-ink); border: 1px solid #fecaca; }
+.mq-notice button { border: 0; background: transparent; cursor: pointer; font-weight: 700; color: inherit; }
+
+/* Dialog form */
+.mq-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(15, 23, 42, 0.45); }
+.mq-dialog { width: min(520px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25); }
+.mq-dialog-head { padding: 20px 24px 4px; }
+.mq-dialog-head h2 { font-size: 18px; font-weight: 800; }
+.mq-dialog-head p { margin: 4px 0 0; font-size: 12px; color: var(--color-mute); }
+.mq-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px 24px 4px; }
+.mq-field { display: grid; gap: 5px; align-content: start; }
+.mq-field.full { grid-column: 1 / -1; }
+.mq-field label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #334155; }
+.mq-field input, .mq-field select { width: 100%; min-height: 40px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; font-size: 13px; }
+.mq-field input:focus, .mq-field select:focus { outline: none; border-color: var(--color-electric); box-shadow: 0 0 0 3px #dbeafe; }
+.mq-field.has-error input, .mq-field.has-error select { border-color: var(--color-bad); }
+.mq-field .hint { font-size: 11px; color: var(--color-mute); }
+.mq-field .err { font-size: 12px; font-weight: 600; color: var(--color-bad-ink); }
+.mq-form-error { grid-column: 1 / -1; padding: 10px 12px; border-radius: 10px; background: #fef2f2; color: var(--color-bad-ink); font-size: 12px; font-weight: 600; }
+.mq-dialog-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 18px 24px 22px; }
+
+@media (max-width: 860px) {
+  .mq-side { display: none; }
+  .mq-main { padding: 24px 16px 48px; }
+  .mq-form { grid-template-columns: 1fr; }
+}

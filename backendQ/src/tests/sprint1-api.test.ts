@@ -223,6 +223,7 @@ describe("MobilitiQ Sprint 1 API & Auth RBAC Suite", () => {
     assert.equal(resMitra.status, 200);
     assert.equal(resMitra.data.data.user.role, "MITRA");
     assert.equal(resMitra.data.data.user.passwordHash, undefined);
+    assert.equal(resMitra.data.data.redirectTo, "/mitra/katalog");
     assert.equal(resMitra.data.data.redirectTo, "/mitra");
     mitraCookie = extractCookieToken(resMitra.setCookie);
 

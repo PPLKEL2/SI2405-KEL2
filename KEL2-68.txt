@@ -1,0 +1,3 @@
+KEL2-68 Sebagai superadmin, saya ingin mengelola parameter insentif dan pajak EV agar simulasi kepemilikan kendaraan dapat memperhitungkan kebijakan yang berlaku.
+
+Fitri Novianti

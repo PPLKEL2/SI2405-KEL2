@@ -43,6 +43,16 @@ export default function ComparisonCalculatorPage() {
 
   const runCalc = async (override?: Record<string, any>) => {
     setErrorMsg(null);
+    setLoading(true);
+    try {
+      const payload = {
+        dailyDistanceKm: Number(dailyDistanceKm),
+        iceKmPerLiter: Number(iceKmPerLiter),
+        fuelPricePerLiter: Number(fuelPricePerLiter),
+        evConsumptionKwh100km: Number(evConsumptionKwh100km),
+        homeTariffPerKwh: Number(homeTariffPerKwh),
+        spkluTariffPerKwh: Number(spkluTariffPerKwh),
+        homeChargingPercentage: Number(homeChargingPercentage),
 
     const getVal = (testId: string, fallback: string) => {
       if (typeof document === "undefined") return fallback;
@@ -165,6 +175,11 @@ export default function ComparisonCalculatorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const bbmMonthly = result?.bbmMonthlyCost || 400000;
+  const evMonthly = result?.evMonthlyCost || 92039;
+  const diffMonthly = result?.costDifferenceMonthly || (bbmMonthly - evMonthly);
+  const diffAnnual = result?.costDifferenceAnnual || diffMonthly * 12;
+  const pct = result?.percentageDifference || (bbmMonthly > 0 ? Math.round((diffMonthly / bbmMonthly) * 100) : 77);
   const distNum = Number(dailyDistanceKm) || 60;
   const bbmEffNum = Number(iceKmPerLiter) || 12;
   const bbmPriceNum = Number(fuelPricePerLiter) || 10000;
@@ -203,6 +218,7 @@ export default function ComparisonCalculatorPage() {
         </div>
 
         {errorMsg && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
           <div data-testid="validation-message" className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
             {errorMsg}
           </div>
@@ -233,6 +249,9 @@ export default function ComparisonCalculatorPage() {
                 min="5"
                 max="300"
                 step="5"
+                value={dailyDistanceKm}
+                onChange={(e) => {
+                  setDailyDistanceKm(e.target.value);
                 value={Number(dailyDistanceKm) || 60}
                 onChange={(e) => {
                   setDailyDistanceKm(e.target.value);
@@ -247,6 +266,10 @@ export default function ComparisonCalculatorPage() {
               <div className="mt-1.5 flex items-center gap-2">
                 <input
                   type="number"
+                  value={dailyDistanceKm}
+                  onChange={(e) => {
+                    setDailyDistanceKm(e.target.value);
+                    runCalc({ dailyDistanceKm: Number(e.target.value) });
                   data-testid="distance-input"
                   defaultValue="60"
                   onChange={(e) => {
@@ -273,6 +296,9 @@ export default function ComparisonCalculatorPage() {
                 min="10"
                 max="75"
                 step="1"
+                value={iceKmPerLiter}
+                onChange={(e) => {
+                  setIceKmPerLiter(e.target.value);
                 value={Number(iceKmPerLiter) || 45}
                 onChange={(e) => {
                   setIceKmPerLiter(e.target.value);
@@ -302,6 +328,7 @@ export default function ComparisonCalculatorPage() {
             <div className="mt-5">
               <div className="mb-1.5 flex items-center justify-between">
                 <label htmlFor="comp-fuel-type" className="text-xs font-bold text-slate-800">
+                  Jenis BBM
                   Jenis BBM &amp; Tarif
                 </label>
                 <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
@@ -336,6 +363,11 @@ export default function ComparisonCalculatorPage() {
                   </option>
                 ))}
               </select>
+              <div className="mt-1.5 flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600">
+                <span>Harga resmi per liter:</span>
+                <span className="num font-bold text-slate-900">
+                  {formatRupiah(Number(fuelPricePerLiter))} / liter
+                </span>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-500">Rp</span>
                 <input
@@ -366,6 +398,9 @@ export default function ComparisonCalculatorPage() {
                 min="1"
                 max="25"
                 step="0.1"
+                value={evConsumptionKwh100km}
+                onChange={(e) => {
+                  setEvConsumptionKwh100km(e.target.value);
                 value={Number(evConsumptionKwh100km) || 3.2}
                 onChange={(e) => {
                   setEvConsumptionKwh100km(e.target.value);
@@ -407,6 +442,9 @@ export default function ComparisonCalculatorPage() {
                 min="0"
                 max="100"
                 step="5"
+                value={homeChargingPercentage}
+                onChange={(e) => {
+                  setHomeChargingPercentage(e.target.value);
                 value={Number(homeChargingPercentage) || 85}
                 onChange={(e) => {
                   setHomeChargingPercentage(e.target.value);
@@ -418,6 +456,7 @@ export default function ComparisonCalculatorPage() {
                 }}
                 className="h-2 w-full cursor-pointer accent-[#2563EB]"
               />
+              <p className="mt-1 text-[11px] text-slate-400">
               <div className="mt-1.5 flex items-center gap-2">
                 <input
                   type="number"
@@ -457,6 +496,7 @@ export default function ComparisonCalculatorPage() {
             </div>
 
             <button
+              type="submit"
               type="button"
               onClick={() => runCalc()}
               data-testid="calculate-button"
@@ -472,6 +512,7 @@ export default function ComparisonCalculatorPage() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <span className="text-xs text-slate-500">Biaya BBM / bulan</span>
+                <p className="mt-1.5 num font-heading text-2xl font-extrabold text-slate-900">
                 <p data-testid="bbm-monthly-cost" className="mt-1.5 num font-heading text-2xl font-extrabold text-slate-900">
                   {formatRupiah(bbmMonthly)}
                 </p>
@@ -482,6 +523,7 @@ export default function ComparisonCalculatorPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <span className="text-xs text-slate-500">Biaya Listrik / bulan</span>
+                <p className="mt-1.5 num font-heading text-2xl font-extrabold text-[#2563EB]">
                 <p data-testid="ev-monthly-cost" className="mt-1.5 num font-heading text-2xl font-extrabold text-[#2563EB]">
                   {formatRupiah(evMonthly)}
                 </p>
@@ -493,6 +535,11 @@ export default function ComparisonCalculatorPage() {
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-emerald-800">Hemat Bulanan</span>
+                  <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+                    {pct}%
+                  </span>
+                </div>
+                <p className="mt-1.5 num font-heading text-2xl font-extrabold text-[#059669]">
                   <span data-testid="savings-percentage" className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
                     {pct}%
                   </span>
