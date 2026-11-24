@@ -348,6 +348,11 @@ export default function MitraFasilitasPage() {
                       ...form,
                       contact: e.target.value.replace(/[^0-9+()\-/\s]/g, ""),
                     })
+                  type="text"
+                  data-testid="facility-form-contact"
+                  value={form.contact}
+                  onChange={(e) =>
+                    setForm({ ...form, contact: e.target.value })
                   }
                   placeholder="021-5551234 / 123"
                   className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900"
